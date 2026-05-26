@@ -1,0 +1,1576 @@
+这是为您生成的一个名为“Velka”的独立博客引擎原型网页，融合了拟物风格与 Teenage Engineering 式的极简工业美学。
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velka — 博客引擎</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #e8e3da;
+            --panel: #f3efe8;
+            --panel-dark: #d9d3c8;
+            --metal: #c8c2b6;
+            --metal-light: #ddd8ce;
+            --metal-dark: #b5afa3;
+            --text: #2a2622;
+            --text-secondary: #5c5650;
+            --text-muted: #8a837a;
+            --accent: #ff6b35;
+            --accent-glow: #ff8c60;
+            --accent-dark: #d45220;
+            --white: #faf7f2;
+            --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03);
+            --shadow-raised: 0 4px 16px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+            --shadow-pressed: inset 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+            --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+            --radius-sm: 6px;
+            --radius: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --font-sans: 'DM Sans', 'Inter', 'SF Pro Display', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-mono: 'DM Mono', 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image:
+                repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.004) 2px,
+                    rgba(0, 0, 0, 0.004) 3px),
+                radial-gradient(ellipse at 20% 10%, rgba(200, 190, 175, 0.3) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 90%, rgba(210, 200, 185, 0.25) 0%, transparent 60%);
+            background-attachment: fixed;
+        }
+
+        /* ============ 纹理叠加 ============ */
+        .texture-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='60' height='60' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+        }
+
+        /* ============ 主容器 ============ */
+        .app-container {
+            position: relative;
+            z-index: 1;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 28px 60px;
+        }
+
+        /* ============ 顶部导航 ============ */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            margin-bottom: 28px;
+            background: var(--panel);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            border-radius: 1px;
+            pointer-events: none;
+        }
+
+        /* 铆钉装饰 */
+        .rivet {
+            position: absolute;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--metal);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            z-index: 2;
+            pointer-events: none;
+        }
+        .rivet-tl {
+            top: 7px;
+            left: 9px;
+        }
+        .rivet-tr {
+            top: 7px;
+            right: 9px;
+        }
+        .rivet-bl {
+            bottom: 7px;
+            left: 9px;
+        }
+        .rivet-br {
+            bottom: 7px;
+            right: 9px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--text);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: -0.02em;
+            box-shadow: var(--shadow-raised);
+            position: relative;
+            transition: var(--transition);
+            cursor: pointer;
+            user-select: none;
+        }
+        .logo-icon:active {
+            box-shadow: var(--shadow-pressed);
+            transform: scale(0.96);
+        }
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 8px;
+            right: 8px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 1px;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.35rem;
+            letter-spacing: 0.06em;
+            color: var(--text);
+            text-transform: uppercase;
+            line-height: 1;
+        }
+        .logo-sub {
+            font-size: 0.6rem;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 6px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-btn {
+            padding: 9px 16px;
+            border: none;
+            background: var(--panel-dark);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            text-transform: uppercase;
+            white-space: nowrap;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .nav-btn:hover {
+            color: var(--text);
+            box-shadow: var(--shadow-raised);
+            transform: translateY(-1px);
+            background: #e5dfd5;
+        }
+        .nav-btn:active {
+            box-shadow: var(--shadow-pressed);
+            transform: translateY(0);
+            background: var(--panel-dark);
+        }
+        .nav-btn.active {
+            background: var(--text);
+            color: var(--white);
+            box-shadow: var(--shadow-raised);
+            border-color: transparent;
+            font-weight: 600;
+        }
+        .nav-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 18px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 1px;
+        }
+
+        /* ============ 旋钮装饰 ============ */
+        .knob-decor {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--metal-light);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 0 0 2px var(--metal-dark);
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .knob-decor::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 1px;
+        }
+        .knob-decor:hover {
+            transform: rotate(30deg);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 0 0 2px var(--metal-dark);
+        }
+
+        /* ============ 主内容区 ============ */
+        .main-content {
+            transition: var(--transition-slow);
+            opacity: 1;
+        }
+        .main-content.fading {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        /* ============ 特色文章卡片 ============ */
+        .featured-card {
+            background: var(--panel);
+            border-radius: var(--radius-xl);
+            padding: 32px 36px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-raised);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        .featured-card:hover {
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13), 0 3px 8px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        .featured-card:active {
+            box-shadow: var(--shadow-pressed);
+            transform: translateY(0);
+        }
+        .featured-card::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .featured-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 6px rgba(255, 107, 53, 0.35);
+            position: relative;
+            z-index: 1;
+        }
+        .featured-title {
+            font-size: 1.9rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 10px;
+            color: var(--text);
+            position: relative;
+            z-index: 1;
+        }
+        .featured-excerpt {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            max-width: 600px;
+            position: relative;
+            z-index: 1;
+        }
+        .featured-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 16px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.03em;
+            position: relative;
+            z-index: 1;
+        }
+        .featured-geo {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 70px;
+            height: 70px;
+            border: 2px solid rgba(0, 0, 0, 0.06);
+            border-radius: 50%;
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .featured-geo::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 3px;
+            opacity: 0.3;
+        }
+
+        /* ============ 文章网格 ============ */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding: 0 4px;
+        }
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            min-width: 30px;
+        }
+        .section-dot {
+            width: 5px;
+            height: 5px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.5);
+            }
+            50% {
+                opacity: 0.5;
+                box-shadow: 0 0 0 6px rgba(255, 107, 53, 0);
+            }
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .article-card {
+            background: var(--panel);
+            border-radius: var(--radius-lg);
+            padding: 22px 20px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .article-card:hover {
+            box-shadow: var(--shadow-raised);
+            transform: translateY(-2px);
+        }
+        .article-card:active {
+            box-shadow: var(--shadow-pressed);
+            transform: translateY(0);
+        }
+        .article-card .card-category {
+            font-size: 0.65rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .article-card .card-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            line-height: 1.3;
+            color: var(--text);
+        }
+        .article-card .card-excerpt {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+            flex: 1;
+        }
+        .article-card .card-meta {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            letter-spacing: 0.03em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-meta-dot {
+            width: 3px;
+            height: 3px;
+            background: var(--metal);
+            border-radius: 50%;
+        }
+        /* 卡片铆钉 */
+        .article-card .card-rivet {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--metal);
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .article-card .card-rivet-1 {
+            top: 8px;
+            left: 8px;
+        }
+        .article-card .card-rivet-2 {
+            top: 8px;
+            right: 8px;
+        }
+        .article-card .card-rivet-3 {
+            bottom: 8px;
+            left: 8px;
+        }
+        .article-card .card-rivet-4 {
+            bottom: 8px;
+            right: 8px;
+        }
+
+        /* ============ 文章详情页 ============ */
+        .article-detail {
+            background: var(--panel);
+            border-radius: var(--radius-xl);
+            padding: 36px 40px;
+            box-shadow: var(--shadow-raised);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            margin-bottom: 28px;
+        }
+        .article-detail::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--panel-dark);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: var(--font-sans);
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            color: var(--text-secondary);
+            box-shadow: var(--shadow-soft);
+            transition: var(--transition);
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        .back-btn:hover {
+            box-shadow: var(--shadow-raised);
+            color: var(--text);
+            transform: translateX(-2px);
+        }
+        .back-btn:active {
+            box-shadow: var(--shadow-pressed);
+            transform: translateX(0);
+        }
+        .back-arrow {
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+        .article-detail .detail-category {
+            display: inline-block;
+            padding: 5px 12px;
+            background: var(--text);
+            color: var(--white);
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+        .article-detail .detail-title {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        .article-detail .detail-meta {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            letter-spacing: 0.03em;
+            margin-bottom: 28px;
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        .article-detail .detail-body {
+            font-size: 0.95rem;
+            line-height: 1.75;
+            color: var(--text);
+            position: relative;
+            z-index: 1;
+        }
+        .detail-body p {
+            margin-bottom: 16px;
+        }
+        .detail-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin: 28px 0 12px;
+            color: var(--text);
+        }
+        .detail-body blockquote {
+            border-left: 3px solid var(--accent);
+            padding: 12px 18px;
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            color: var(--text-secondary);
+            font-style: italic;
+            letter-spacing: 0.01em;
+        }
+        .detail-image-placeholder {
+            width: 100%;
+            height: 260px;
+            background: var(--panel-dark);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-inset);
+        }
+        .detail-image-placeholder .geo-pattern {
+            display: flex;
+            gap: 20px;
+            opacity: 0.5;
+        }
+        .geo-pattern .geo-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid var(--metal-dark);
+            background: transparent;
+        }
+        .geo-pattern .geo-square {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            background: var(--metal);
+            transform: rotate(15deg);
+        }
+        .geo-pattern .geo-triangle {
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 45px solid var(--metal-dark);
+            opacity: 0.6;
+        }
+
+        /* 文章底部相关推荐 */
+        .related-articles {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            position: relative;
+            z-index: 1;
+        }
+        .related-label {
+            grid-column: 1 / -1;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        .related-card {
+            background: var(--panel-dark);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            box-shadow: var(--shadow-soft);
+        }
+        .related-card:hover {
+            box-shadow: var(--shadow-raised);
+            transform: translateY(-1px);
+        }
+        .related-card .rc-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: -0.01em;
+            margin-bottom: 4px;
+        }
+        .related-card .rc-meta {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            letter-spacing: 0.03em;
+        }
+
+        /* ============ 分类/标签页 ============ */
+        .categories-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        .category-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 18px;
+            background: var(--panel);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+        .category-pill:hover {
+            box-shadow: var(--shadow-raised);
+            transform: translateY(-1px);
+        }
+        .category-pill:active {
+            box-shadow: var(--shadow-pressed);
+            transform: translateY(0);
+        }
+        .category-pill .cat-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        .category-pill .cat-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: -0.01em;
+            flex: 1;
+        }
+        .category-pill .cat-count {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+            font-family: var(--font-mono);
+        }
+
+        /* ============ 关于页 ============ */
+        .about-card {
+            background: var(--panel);
+            border-radius: var(--radius-xl);
+            padding: 36px 40px;
+            box-shadow: var(--shadow-raised);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+        .about-card::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .about-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+        .about-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
+        }
+        .about-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-top: 24px;
+            position: relative;
+            z-index: 1;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 18px;
+            background: var(--panel-dark);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-inset);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--accent);
+            font-family: var(--font-mono);
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ============ 底部 ============ */
+        .footer {
+            text-align: center;
+            padding: 28px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .footer .footer-line {
+            display: inline-block;
+            width: 40px;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.12);
+            vertical-align: middle;
+            margin: 0 12px;
+        }
+
+        /* ============ 搜索条 ============ */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background: var(--panel);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-inset);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-bottom: 22px;
+            transition: var(--transition);
+        }
+        .search-bar:focus-within {
+            box-shadow: var(--shadow-raised);
+            border-color: rgba(255, 107, 53, 0.3);
+        }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--text);
+            outline: none;
+            letter-spacing: 0.02em;
+        }
+        .search-bar input::placeholder {
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+        }
+        .search-icon {
+            font-size: 1rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        /* ============ 响应式 ============ */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 14px 14px 40px;
+            }
+            .articles-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .categories-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .header {
+                flex-direction: column;
+                gap: 14px;
+                padding: 16px 18px;
+            }
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .featured-card {
+                padding: 22px 20px;
+            }
+            .featured-title {
+                font-size: 1.4rem;
+            }
+            .featured-geo {
+                display: none;
+            }
+            .article-detail {
+                padding: 22px 18px;
+            }
+            .article-detail .detail-title {
+                font-size: 1.4rem;
+            }
+            .related-articles {
+                grid-template-columns: 1fr;
+            }
+            .about-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .detail-image-placeholder {
+                height: 180px;
+            }
+        }
+        @media (max-width: 480px) {
+            .articles-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .categories-container {
+                grid-template-columns: 1fr;
+            }
+            .about-stats {
+                grid-template-columns: 1fr;
+            }
+            .nav-btn {
+                padding: 7px 11px;
+                font-size: 0.7rem;
+            }
+        }
+
+        /* ============ 滚动条美化 ============ */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--metal);
+            border-radius: 10px;
+            border: 2px solid var(--bg);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--metal-dark);
+        }
+
+        /* ============ 选中文字 ============ */
+        ::selection {
+            background: rgba(255, 107, 53, 0.25);
+            color: var(--text);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="texture-overlay"></div>
+
+    <div class="app-container">
+        <!-- ============ 顶部导航 ============ -->
+        <header class="header" id="header">
+            <span class="rivet rivet-tl"></span>
+            <span class="rivet rivet-tr"></span>
+            <span class="rivet rivet-bl"></span>
+            <span class="rivet rivet-br"></span>
+
+            <div class="logo-area">
+                <div class="logo-icon" onclick="navigateTo('home')" title="Velka Home">V</div>
+                <div>
+                    <div class="logo-text">Velka</div>
+                    <div class="logo-sub">Blog Engine</div>
+                </div>
+            </div>
+
+            <nav class="nav-links" id="mainNav">
+                <button class="nav-btn active" data-page="home" onclick="navigateTo('home')">文章</button>
+                <button class="nav-btn" data-page="categories" onclick="navigateTo('categories')">分类</button>
+                <button class="nav-btn" data-page="about" onclick="navigateTo('about')">关于</button>
+                <span class="knob-decor" title="调谐旋钮" style="margin-left:4px;" onclick="this.style.transform = this.style.transform.includes('60deg') ? 'rotate(0deg)' : 'rotate(60deg)'"></span>
+            </nav>
+        </header>
+
+        <!-- ============ 主内容区 ============ -->
+        <main class="main-content" id="mainContent">
+
+            <!-- ==================== 首页视图 ==================== -->
+            <div id="view-home" class="view active">
+
+                <!-- 搜索条 -->
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="搜索文章..." id="searchInput" oninput="filterArticles()">
+                </div>
+
+                <!-- 特色文章 -->
+                <article class="featured-card" onclick="openArticle('article-1')" id="featuredArticle">
+                    <span class="rivet rivet-tl" style="top:8px;left:10px;"></span>
+                    <span class="rivet rivet-tr" style="top:8px;right:10px;"></span>
+                    <span class="rivet rivet-bl" style="bottom:8px;left:10px;"></span>
+                    <span class="rivet rivet-br" style="bottom:8px;right:10px;"></span>
+                    <span class="featured-badge">✨ 精选</span>
+                    <h2 class="featured-title">模块化思维：从合成器到代码架构</h2>
+                    <p class="featured-excerpt">探索模块化设计如何塑造了电子音乐与软件工程的交汇点，以及为什么限制反而能激发更大的创造力。</p>
+                    <div class="featured-meta">
+                        <span>2026.05.18</span>
+                        <span style="width:3px;height:3px;background:var(--metal);border-radius:50%;"></span>
+                        <span>阅读 8 分钟</span>
+                        <span style="width:3px;height:3px;background:var(--metal);border-radius:50%;"></span>
+                        <span>设计 · 技术</span>
+                    </div>
+                    <div class="featured-geo"></div>
+                </article>
+
+                <!-- 文章列表标题 -->
+                <div class="section-header">
+                    <span class="section-title">
+                        <span class="section-dot"></span> 近期文章
+                    </span>
+                </div>
+
+                <!-- 文章网格 -->
+                <div class="articles-grid" id="articlesGrid">
+                    <!-- 文章卡片由JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- ==================== 文章详情视图 ==================== -->
+            <div id="view-article" class="view" style="display:none;">
+                <button class="back-btn" onclick="navigateTo('home')">
+                    <span class="back-arrow">←</span> 返回文章列表
+                </button>
+                <div class="article-detail" id="articleDetailContent">
+                    <!-- 动态填充 -->
+                </div>
+                <div class="related-articles" id="relatedArticles">
+                    <!-- 动态填充 -->
+                </div>
+            </div>
+
+            <!-- ==================== 分类视图 ==================== -->
+            <div id="view-categories" class="view" style="display:none;">
+                <div class="section-header">
+                    <span class="section-title">
+                        <span class="section-dot"></span> 文章分类
+                    </span>
+                </div>
+                <div class="categories-container" id="categoriesContainer">
+                    <!-- 动态填充 -->
+                </div>
+                <div class="section-header" style="margin-top:8px;">
+                    <span class="section-title">分类文章预览</span>
+                </div>
+                <div class="articles-grid" id="categoryArticlesGrid">
+                    <!-- 动态填充 -->
+                </div>
+            </div>
+
+            <!-- ==================== 关于视图 ==================== -->
+            <div id="view-about" class="view" style="display:none;">
+                <div class="about-card">
+                    <span class="rivet rivet-tl" style="top:8px;left:10px;"></span>
+                    <span class="rivet rivet-tr" style="top:8px;right:10px;"></span>
+                    <span class="rivet rivet-bl" style="bottom:8px;left:10px;"></span>
+                    <span class="rivet rivet-br" style="bottom:8px;right:10px;"></span>
+                    <h2>关于 Velka</h2>
+                    <p>Velka 是一个轻量级的博客引擎，设计灵感来源于<strong>Teenage Engineering</strong>的工业美学——简洁的几何形态、温暖的金属质感、以及恰到好处的橙色点缀。</p>
+                    <p>我们相信，写作工具本身就应该是一件精心设计的器物。每一个按钮的触感、每一处阴影的层次、每一个铆钉的位置，都经过仔细推敲。这不是多余的装饰，而是对<strong>质感</strong>的执着。</p>
+                    <p>拟物化的界面语言在这里回归——不是为了怀旧，而是为了让数字空间重新拥有<strong>物理世界的温度和可信赖感</strong>。</p>
+                    <div class="about-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">文章</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">5</div>
+                            <div class="stat-label">分类</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">作者</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ============ 底部 ============ -->
+        <footer class="footer">
+            <span class="footer-line"></span> Velka Blog Engine <span class="footer-line"></span>
+            <br><span style="font-size:0.6rem;opacity:0.5;">Skeuomorphic · Teenage Engineering Style · Est. 2026</span>
+        </footer>
+    </div>
+
+    <script>
+        // ============ 文章数据 ============
+        const articles = [
+            {
+                id: 'article-1',
+                title: '模块化思维：从合成器到代码架构',
+                category: '设计',
+                categoryColor: '#ff6b35',
+                date: '2026.05.18',
+                readTime: '8 分钟',
+                excerpt: '探索模块化设计如何塑造了电子音乐与软件工程的交汇点，以及为什么限制反而能激发更大的创造力。',
+                featured: true,
+                body: `
+                        <p>在电子音乐的世界里，模块化合成器代表了一种独特的设计哲学：<strong>每个模块只做一件事，但把它做到极致</strong>。振荡器负责生成波形，滤波器负责塑造频率，包络发生器控制动态——它们通过跳线连接，形成复杂的信号链。</p>
+                        <p>这种思维方式与软件架构中的<strong>单一职责原则</strong>惊人地相似。一个好的软件模块，就像一个设计精良的VCO（压控振荡器），它有着清晰的输入和输出，内部实现可以任意复杂，但对外接口始终保持简洁。</p>
+                        <div class="detail-image-placeholder">
+                            <div class="geo-pattern">
+                                <div class="geo-circle"></div>
+                                <div class="geo-square"></div>
+                                <div class="geo-triangle"></div>
+                                <div class="geo-circle"></div>
+                                <div class="geo-square" style="transform:rotate(-10deg);"></div>
+                            </div>
+                        </div>
+                        <h3>限制激发创造力</h3>
+                        <p>Teenage Engineering的OP-1合成器有一个著名的设计决策：<strong>只有4轨录音</strong>。在大多数DAW支持无限音轨的时代，这看起来像是一个巨大的限制。但正是这个限制，迫使音乐家做出选择、承担风险、更加专注于每一个声音的质量。</p>
+                        <blockquote>"限制不是障碍，而是框架。在框架内，创造力反而获得了自由。" — 这是OP-1给我们的启示，也同样适用于代码设计。</blockquote>
+                        <p>在构建Velka博客引擎时，我们刻意保持了核心的简洁——没有臃肿的插件系统，没有复杂的主题配置。就像一个精心设计的合成器面板，每个按钮都有它的位置和目的。</p>
+                    `,
+            },
+            {
+                id: 'article-2',
+                title: '田野录音笔记：城市声音采样',
+                category: '创意',
+                categoryColor: '#4a90d9',
+                date: '2026.05.10',
+                readTime: '6 分钟',
+                excerpt: '带着便携录音机穿行于城市，捕捉那些被忽略的声音纹理——地铁闸机的节奏、霓虹灯的嗡鸣、雨滴敲打不同材质表面的音色。',
+                featured: false,
+                body: `
+                        <p>城市是一台巨大的、永不停歇的<strong>声音合成器</strong>。每一个角落都有独特的频率在振动——从地下铁的低频轰鸣到咖啡馆里杯碟碰撞的高频脆响。</p>
+                        <p>田野录音（Field Recording）的魅力在于，它让你重新成为一个<strong>聆听者</strong>。你不是在创造声音，而是在发现已经存在的声音景观。</p>
+                        <div class="detail-image-placeholder">
+                            <div class="geo-pattern">
+                                <div class="geo-triangle"></div>
+                                <div class="geo-circle" style="border-color:var(--accent);"></div>
+                                <div class="geo-square" style="background:var(--metal-light);border-radius:50%;"></div>
+                                <div class="geo-circle"></div>
+                            </div>
+                        </div>
+                        <h3>装备极简主义</h3>
+                        <p>你不需要昂贵的设备。一台Zoom H1n或甚至一部手机的录音功能，就足以开始。关键是<strong>麦克风的位置</strong>和<strong>聆听的专注度</strong>。把麦克风贴近地铁闸机的金属缝隙，你会得到完全不同于站在两米外的声音。</p>
+                    `,
+            },
+            {
+                id: 'article-3',
+                title: '极简工作台的构建哲学',
+                category: '生活',
+                categoryColor: '#7c9a6e',
+                date: '2026.05.02',
+                readTime: '5 分钟',
+                excerpt: '一张干净的桌子，一台电脑，一盏灯。在物质过剩的时代，精简工作环境反而能带来更深的专注。',
+                featured: false,
+                body: `
+                        <p>过去三年，我逐渐将工作台上的物品减少到了<strong>12件</strong>。这并非苦行，而是一种解放。每减少一件多余的物品，注意力就多了一分回归。</p>
+                        <p>Teenage Engineering的设计哲学在这里同样适用：<strong>每个存在的事物都应有其明确的意图</strong>。如果一件工具不能在日常中频繁使用，它就不应该占据桌面的空间。</p>
+                        <div class="detail-image-placeholder">
+                            <div class="geo-pattern">
+                                <div class="geo-square" style="transform:rotate(0deg);border-radius:2px;"></div>
+                                <div class="geo-square" style="transform:rotate(0deg);border-radius:2px;width:30px;height:30px;"></div>
+                                <div class="geo-square" style="transform:rotate(0deg);border-radius:2px;width:15px;height:15px;"></div>
+                            </div>
+                        </div>
+                    `,
+            },
+            {
+                id: 'article-4',
+                title: '数字花园：超文本的再思考',
+                category: '技术',
+                categoryColor: '#e07090',
+                date: '2026.04.25',
+                readTime: '7 分钟',
+                excerpt: '将博客视为一个不断生长的数字花园，而非按时间线排列的文章列表。链接、标签和双向引用构建知识的生态。',
+                featured: false,
+                body: `
+                        <p>传统的博客是按时间倒序排列的文章列表——这是一种<strong>线性的、以时间为导向</strong>的结构。但知识的本质是非线性的、网状的。</p>
+                        <p>数字花园（Digital Garden）的概念提供了一个替代方案：将写作视为<strong>培育思想的过程</strong>。文章之间通过双向链接连接，标签成为导航的路径，每篇文章都可以随着时间不断修订和生长。</p>
+                        <div class="detail-image-placeholder">
+                            <div class="geo-pattern">
+                                <div class="geo-circle" style="border-style:dashed;"></div>
+                                <div class="geo-circle" style="border-style:dashed;width:35px;height:35px;"></div>
+                                <div class="geo-circle" style="border-style:dashed;width:20px;height:20px;"></div>
+                                <div class="geo-circle" style="border-style:solid;border-color:var(--accent);"></div>
+                            </div>
+                        </div>
+                    `,
+            },
+            {
+                id: 'article-5',
+                title: 'OP-1与创作的限制之美',
+                category: '创意',
+                categoryColor: '#4a90d9',
+                date: '2026.04.18',
+                readTime: '9 分钟',
+                excerpt: 'Teenage Engineering的OP-1合成器教会了我们：在无限可能的时代，精心设计的限制才是真正的奢侈品。',
+                featured: false,
+                body: `
+                        <p>OP-1是一台<strong>矛盾</strong>的机器——它体积小巧，却包含了合成器、采样器、鼓机、4轨录音机和多种效果器。但它的每一个功能都被刻意地<strong>简化到了极致</strong>。</p>
+                        <p>它的屏幕是黑白的OLED，分辨率不高；它的键盘是硅胶按键，没有力度感应；它只有4轨录音。但这些限制共同创造了一种<strong>独特的创作体验</strong>——你必须做出决策，必须接受不完美，必须在框架内找到解决方案。</p>
+                        <blockquote>这就是限制之美：当选项减少时，选择反而变得更有意义。</blockquote>
+                    `,
+            },
+            {
+                id: 'article-6',
+                title: '排版节奏：文字呼吸感的设计方法',
+                category: '设计',
+                categoryColor: '#ff6b35',
+                date: '2026.04.10',
+                readTime: '6 分钟',
+                excerpt: '好的排版就像一首曲子，有着自己的节奏和呼吸。字间距、行距、段落间距共同构成了文字的韵律。',
+                featured: false,
+                body: `
+                        <p>排版不仅仅是选择字体。它是<strong>空间与节奏</strong>的艺术。每个字符之间的间距（tracking）、每行之间的行距（leading）、段落之间的空白——这些元素共同决定了阅读的<strong>呼吸感</strong>。</p>
+                        <p>在Velka的设计中，我们花费了大量时间调整这些微观的间距。标题的letter-spacing被设置为-0.02em，创造出紧凑而有力量的视觉效果；正文的行距为1.6，提供了舒适的阅读节奏。</p>
+                        <div class="detail-image-placeholder">
+                            <div class="geo-pattern">
+                                <div class="geo-square" style="width:8px;height:40px;transform:rotate(0);border-radius:2px;background:var(--text);opacity:0.3;"></div>
+                                <div class="geo-square" style="width:8px;height:25px;transform:rotate(0);border-radius:2px;background:var(--text);opacity:0.5;"></div>
+                                <div class="geo-square" style="width:8px;height:50px;transform:rotate(0);border-radius:2px;background:var(--text);opacity:0.2;"></div>
+                                <div class="geo-square" style="width:8px;height:32px;transform:rotate(0);border-radius:2px;background:var(--accent);opacity:0.7;"></div>
+                                <div class="geo-square" style="width:8px;height:18px;transform:rotate(0);border-radius:2px;background:var(--text);opacity:0.4;"></div>
+                            </div>
+                        </div>
+                    `,
+            },
+            {
+                id: 'article-7',
+                title: '工业设计中的情感温度',
+                category: '设计',
+                categoryColor: '#ff6b35',
+                date: '2026.03.28',
+                readTime: '7 分钟',
+                excerpt: '为什么一些冷冰冰的金属设备能让人感到温暖？探讨工业设计中材质、色彩和触感如何共同构建情感连接。',
+                featured: false,
+                body: `
+                        <p>拿起一台Teenage Engineering的设备，你会发现它的外壳有一种<strong>微妙的纹理</strong>——不是光滑的塑料，而是略带磨砂质感的表面。这种触感传递出一种<strong>经过思考的质量</strong>。</p>
+                        <p>工业设计中的情感温度来自于对<strong>人性化细节</strong>的关注。一个旋钮的阻尼感、一个按钮的行程深度、一个LED的亮度——这些都是设计师与用户之间的无声对话。</p>
+                    `,
+            },
+            {
+                id: 'article-8',
+                title: '静态博客的性能美学',
+                category: '技术',
+                categoryColor: '#e07090',
+                date: '2026.03.15',
+                readTime: '5 分钟',
+                excerpt: '一个不依赖数据库、不需要后端服务器的博客，能有多快？静态网站生成器的哲学与实践。',
+                featured: false,
+                body: `
+                        <p>在JavaScript框架层出不穷的时代，<strong>静态HTML</strong>反而成了一种激进的选择。没有数据库查询，没有API调用，没有客户端渲染——只有预生成的HTML文件，以最快的速度送达浏览器。</p>
+                        <p>Velka正是基于这一理念构建的。它的核心是一个简单的模板引擎，将Markdown文件转换为精心设计的HTML页面。<strong>性能本身，就是一种美学</strong>。</p>
+                    `,
+            },
+        ];
+
+        // 分类数据
+        const categories = [
+            { name: '设计', slug: 'design', color: '#ff6b35', count: 3 },
+            { name: '技术', slug: 'tech', color: '#e07090', count: 2 },
+            { name: '创意', slug: 'creative', color: '#4a90d9', count: 2 },
+            { name: '生活', slug: 'life', color: '#7c9a6e', count: 1 },
+            { name: '音乐', slug: 'music', color: '#c09050', count: 1 },
+        ];
+
+        // ============ 渲染函数 ============
+        function renderArticlesGrid(containerId, articleList, showRivets = true) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = articleList.map(a => `
+                    <article class="article-card" onclick="openArticle('${a.id}')" data-id="${a.id}" data-category="${a.category}">
+                        ${showRivets ? `
+                        <span class="card-rivet card-rivet-1"></span>
+                        <span class="card-rivet card-rivet-2"></span>
+                        <span class="card-rivet card-rivet-3"></span>
+                        <span class="card-rivet card-rivet-4"></span>` : ''}
+                        <span class="card-category" style="color:${a.categoryColor}">${a.category}</span>
+                        <h3 class="card-title">${a.title}</h3>
+                        <p class="card-excerpt">${a.excerpt}</p>
+                        <div class="card-meta">
+                            <span>${a.date}</span>
+                            <span class="card-meta-dot"></span>
+                            <span>${a.readTime}</span>
+                        </div>
+                    </article>
+                `).join('');
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            if (!container) return;
+            container.innerHTML = categories.map(c => `
+                    <div class="category-pill" onclick="filterByCategory('${c.slug}')" data-slug="${c.slug}">
+                        <span class="cat-indicator" style="background:${c.color};"></span>
+                        <span class="cat-name">${c.name}</span>
+                        <span class="cat-count">${c.count} 篇</span>
+                    </div>
+                `).join('');
+            // 默认显示所有文章
+            renderArticlesGrid('categoryArticlesGrid', articles, false);
+        }
+
+        function renderArticleDetail(article) {
+            const container = document.getElementById('articleDetailContent');
+            if (!container) return;
+            container.innerHTML = `
+                    <span class="detail-category" style="background:${article.categoryColor}">${article.category}</span>
+                    <h1 class="detail-title">${article.title}</h1>
+                    <div class="detail-meta">
+                        <span>📅 ${article.date}</span>
+                        <span>⏱ ${article.readTime}</span>
+                        <span>🏷 ${article.category}</span>
+                    </div>
+                    <div class="detail-body">${article.body}</div>
+                `;
+            // 相关文章
+            const related = articles.filter(a => a.id !== article.id && a.category === article.category).slice(0, 2);
+            if (related.length < 2) {
+                const others = articles.filter(a => a.id !== article.id && a.category !== article.category).slice(0, 2 -
+                    related.length);
+                related.push(...others);
+            }
+            const relatedContainer = document.getElementById('relatedArticles');
+            if (relatedContainer) {
+                relatedContainer.innerHTML = `
+                        <span class="related-label">📎 相关阅读</span>
+                        ${related.map(r => `
+                            <div class="related-card" onclick="openArticle('${r.id}')">
+                                <div class="rc-title">${r.title}</div>
+                                <div class="rc-meta">${r.date} · ${r.category}</div>
+                            </div>
+                        `).join('')}
+                    `;
+            }
+        }
+
+        // ============ 导航 ============
+        let currentView = 'home';
+        let currentArticleId = null;
+        let activeCategorySlug = null;
+
+        function navigateTo(view) {
+            // 更新导航按钮状态
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.page === view) btn.classList.add('active');
+            });
+
+            // 隐藏所有视图
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+
+            const mainContent = document.getElementById('mainContent');
+            mainContent.classList.add('fading');
+
+            setTimeout(() => {
+                switch (view) {
+                    case 'home':
+                        document.getElementById('view-home').style.display = 'block';
+                        document.getElementById('view-article').style.display = 'none';
+                        document.getElementById('view-categories').style.display = 'none';
+                        document.getElementById('view-about').style.display = 'none';
+                        currentView = 'home';
+                        currentArticleId = null;
+                        activeCategorySlug = null;
+                        renderArticlesGrid('articlesGrid', articles, true);
+                        document.getElementById('searchInput').value = '';
+                        // 恢复特色文章点击
+                        restoreFeaturedClick();
+                        break;
+                    case 'categories':
+                        document.getElementById('view-home').style.display = 'none';
+                        document.getElementById('view-article').style.display = 'none';
+                        document.getElementById('view-categories').style.display = 'block';
+                        document.getElementById('view-about').style.display = 'none';
+                        currentView = 'categories';
+                        currentArticleId = null;
+                        activeCategorySlug = null;
+                        renderCategories();
+                        break;
+                    case 'about':
+                        document.getElementById('view-home').style.display = 'none';
+                        document.getElementById('view-article').style.display = 'none';
+                        document.getElementById('view-categories').style.display = 'none';
+                        document.getElementById('view-about').style.display = 'block';
+                        currentView = 'about';
+                        currentArticleId = null;
+                        break;
+                    default:
+                        break;
+                }
+                mainContent.classList.remove('fading');
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 150);
+        }
+
+        function openArticle(articleId) {
+            const article = articles.find(a => a.id === articleId);
+            if (!article) return;
+
+            currentArticleId = articleId;
+            currentView = 'article';
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById('view-home').style.display = 'none';
+            document.getElementById('view-article').style.display = 'block';
+            document.getElementById('view-categories').style.display = 'none';
+            document.getElementById('view-about').style.display = 'none';
+
+            const mainContent = document.getElementById('mainContent');
+            mainContent.classList.add('fading');
+            setTimeout(() => {
+                renderArticleDetail(article);
+                mainContent.classList.remove('fading');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 150);
+        }
+
+        function restoreFeaturedClick() {
+            const featuredCard = document.getElementById('featuredArticle');
+            if (featuredCard) {
+                featuredCard.onclick = () => openArticle('article-1');
+            }
+        }
+
+        function filterByCategory(slug) {
+            activeCategorySlug = slug;
+            const category = categories.find(c => c.slug === slug);
+            const filtered = articles.filter(a => a.category === (category ? category.name : ''));
+            renderArticlesGrid('categoryArticlesGrid', filtered, false);
+            // 高亮选中的分类
+            document.querySelectorAll('.category-pill').forEach(pill => {
+                if (pill.dataset.slug === slug) {
+                    pill.style.boxShadow = 'var(--shadow-raised)';
+                    pill.style.borderColor = 'rgba(255,107,53,0.4)';
+                    pill.style.transform = 'translateY(-1px)';
+                } else {
+                    pill.style.boxShadow = 'var(--shadow-card)';
+                    pill.style.borderColor = 'rgba(0,0,0,0.04)';
+                    pill.style.transform = 'translateY(0)';
+                }
+            });
+            // 滚动到文章预览区
+            document.getElementById('categoryArticlesGrid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function filterArticles() {
+            const query = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+            if (currentView === 'home') {
+                const filtered = articles.filter(a =>
+                    a.title.toLowerCase().includes(query) ||
+                    a.excerpt.toLowerCase().includes(query) ||
+                    a.category.toLowerCase().includes(query)
+                );
+                renderArticlesGrid('articlesGrid', filtered, true);
+                // 同时更新特色文章可见性
+                const featuredCard = document.getElementById('featuredArticle');
+                if (featuredCard && query) {
+                    const featuredArticle = articles.find(a => a.id === 'article-1');
+                    if (featuredArticle &&
+                        !featuredArticle.title.toLowerCase().includes(query) &&
+                        !featuredArticle.excerpt.toLowerCase().includes(query) &&
+                        !featuredArticle.category.toLowerCase().includes(query)) {
+                        featuredCard.style.display = 'none';
+                    } else {
+                        featuredCard.style.display = '';
+                    }
+                } else if (featuredCard) {
+                    featuredCard.style.display = '';
+                }
+            }
+        }
+
+        // ============ 初始化 ============
+        function init() {
+            renderArticlesGrid('articlesGrid', articles, true);
+            renderCategories();
+            restoreFeaturedClick();
+
+            // 键盘导航
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (currentView === 'article' || currentView === 'categories' || currentView === 'about') {
+                        navigateTo('home');
+                    }
+                }
+                // Ctrl+K 聚焦搜索
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    navigateTo('home');
+                    setTimeout(() => {
+                        document.getElementById('searchInput')?.focus();
+                    }, 200);
+                }
+            });
+        }
+
+        // 启动
+        document.addEventListener('DOMContentLoaded', init);
+
+        // ============ 旋钮交互 ============
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.knob-decor') && !e.target.closest('#mainNav')) {
+                const knob = e.target.closest('.knob-decor');
+                const currentRotation = knob.style.transform || '';
+                if (currentRotation.includes('60deg')) {
+                    knob.style.transform = 'rotate(0deg)';
+                } else if (currentRotation.includes('30deg')) {
+                    knob.style.transform = 'rotate(60deg)';
+                } else {
+                    knob.style.transform = 'rotate(30deg)';
+                }
+            }
+        });
+
+        console.log('%c🔧 Velka Blog Engine %c已就绪',
+            'font-weight:700;font-size:1.1em;color:#2a2622;',
+            'color:#5c5650;');
+        console.log('%c拟物风 · Teenage Engineering 风格 · 独立HTML原型',
+            'color:#8a837a;font-style:italic;');
+        console.log('%c💡 提示：点击文章卡片进入详情 | 使用分类标签筛选 | Ctrl+K 快速搜索 | Esc 返回首页',
+            'color:#ff6b35;font-size:0.85em;');
+    </script>
+</body>
+</html>
+```
+### 视觉与体验解析
+
+这个页面就像一个精心设计的电子设备，把“做减法”的工业美学和“有触感”的拟物细节叠在一块儿，来聊聊怎么给写作工具加点格调与温度。
+
+- **工业感的“骨骼”**：整体采用**低饱和米灰色基调**，像未经涂装的金属外壳。**几何形状**（圆、方、三角）作为装饰性“零件”嵌入文章配图，强化了冷静、理性的秩序感，呼应合成器面板的模块化布局。
+
+- **拟物化的“皮肤”**：通过**多层阴影**（`shadow-raised`/`shadow-pressed`）和**高光线条**（`::before`伪元素）模拟物理按键的凹凸感。卡片四角的**铆钉**和侧边的**旋钮**，不仅是装饰，更将“设备”的概念贯穿始终，点击旋钮还有旋转反馈，增加把玩趣味。
+
+- **排版与节奏**：选用**几何感强的无衬线字体**（DM Sans），标题有紧凑的负字距（`-0.02em`），正文行高舒适（1.6）。通过**宽字距（letter-spacing）的大写标签**和**橙色点缀**，营造出严谨又富有节奏的阅读感，像精密仪器的刻度标识。
+
+- **细节与反馈**：**橙色强调色**（#ff6b35）仅用于关键交互（按钮、链接、精选标签），形成视觉焦点。卡片**悬停上浮**、按钮**按下凹陷**的动效，以及**淡入淡出的页面切换**，让数字界面拥有了物理世界的响应逻辑。
