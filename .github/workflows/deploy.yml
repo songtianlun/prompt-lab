@@ -22,6 +22,19 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Generate experiment listing
+        run: |
+          if ls experiments/*/ &>/dev/null; then
+            echo "# 实验列表" > experiments/README.md
+            echo "" >> experiments/README.md
+            echo "| 日期 | 项目 |" >> experiments/README.md
+            echo "|------|------|" >> experiments/README.md
+            for dir in experiments/*/; do
+              name=$(basename "$dir")
+              echo "| ${name:0:10} | [${name:11}](./$name/) |" >> experiments/README.md
+            done
+          fi
+        shell: bash
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3
         with:
