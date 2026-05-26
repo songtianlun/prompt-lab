@@ -1,3 +1,3 @@
 - [首页](/)
-- 实验列表
-  - [2025-05-26 Velka 博客原型](experiments/2025-05-26-velka-blog-prototype/)
+- **实验列表**
+  - [Velka 博客原型](experiments/2025-05-26-velka-blog-prototype/)
