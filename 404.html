@@ -33,16 +33,71 @@
     blockquote { border-left: 3px solid #2563eb; padding: 8px 16px; background: #f0f7ff; margin: 12px 0; border-radius: 0 6px 6px 0; }
     hr { border: none; border-top: 1px solid #e5e7eb; margin: 28px 0; }
     ul, ol { padding-left: 24px; margin: 8px 0; }
+
+    #breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 2px 4px;
+      font-size: 13px;
+      padding-bottom: 20px;
+      color: #9ca3af;
+    }
+    #breadcrumb a {
+      color: #6b7280;
+      text-decoration: none;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    #breadcrumb a:hover {
+      color: #2563eb;
+      background: #f0f7ff;
+    }
+    #breadcrumb .current {
+      color: #111827;
+      font-weight: 600;
+      white-space: nowrap;
+      padding: 2px 6px;
+    }
+    #breadcrumb .sep {
+      color: #d1d5db;
+      user-select: none;
+      font-size: 14px;
+      line-height: 1;
+    }
   </style>
 </head>
 <body>
+  <div id="breadcrumb"></div>
   <div id="content">加载中...</div>
   <script>
+    function renderBreadcrumb() {
+      const s = location.pathname.replace(/\/+$/, '').split('/').filter(Boolean)
+      const el = document.getElementById('breadcrumb')
+      if (!el) return
+      if (s.length <= 1) { el.style.display = 'none'; return }
+      el.style.display = ''
+      let html = `<a href="/${s[0]}/" class="home">首页</a>`
+      let p = '/' + s[0]
+      for (let i = 1; i < s.length; i++) {
+        p += '/' + s[i]
+        html += '<span class="sep">›</span>'
+        if (i === s.length - 1) {
+          html += `<span class="current">${s[i]}</span>`
+        } else {
+          html += `<a href="${p}/">${s[i]}</a>`
+        }
+      }
+      el.innerHTML = html
+    }
+    renderBreadcrumb()
     const path = location.pathname.replace(/\/?$/, '/README.md')
     marked.setOptions({ breaks: true, gfm: true })
     fetch(path)
       .then(r => { if (!r.ok) throw new Error('Not found'); return r.text() })
-      .then(md => document.getElementById('content').innerHTML = marked.parse(md))
+      .then(md => document.getElementById('content').innerHTML = marked.parse(md.replace(/^---[\s\S]*?---\s*/, '')))
       .catch(() => document.getElementById('content').innerHTML = '<h1>404</h1><p>页面未找到</p>')
   </script>
 </body>
