@@ -67,6 +67,43 @@
       font-size: 14px;
       line-height: 1;
     }
+
+    .empty {
+      text-align: center;
+      padding: 80px 24px;
+    }
+    .empty-icon {
+      font-size: 48px;
+      color: #e5e7eb;
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+    .empty h2 {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: #374151;
+      margin: 0 0 8px;
+      border: none;
+    }
+    .empty p {
+      color: #9ca3af;
+      margin: 0 0 24px;
+    }
+    .empty-link {
+      display: inline-block;
+      color: #6b7280;
+      font-size: 14px;
+      padding: 8px 20px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    .empty-link:hover {
+      color: #2563eb;
+      border-color: #2563eb;
+      background: #f0f7ff;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -94,11 +131,15 @@
     }
     renderBreadcrumb()
     marked.setOptions({ breaks: true, gfm: true })
+    const root = '/' + location.pathname.replace(/\/+$/, '').split('/').filter(Boolean)[0] + '/'
     const path = location.pathname.replace(/\/?$/, '/README.md')
     fetch(path)
       .then(r => { if (!r.ok) throw new Error('Not found'); return r.text() })
       .then(md => document.getElementById('content').innerHTML = marked.parse(md.replace(/^---[\s\S]*?---\s*/, '')))
-      .catch(() => document.getElementById('content').innerHTML = '<h1>404</h1><p>页面未找到</p>')
+      .catch(() => {
+        document.getElementById('breadcrumb').style.display = 'none'
+        document.getElementById('content').innerHTML = '<div class="empty"><div class="empty-icon">◌</div><h2>该目录暂无内容</h2><p>这个目录下还没有 README 文件。</p><a href="' + root + '" class="empty-link">← 返回首页</a></div>'
+      })
   </script>
 </body>
 </html>
