@@ -1,0 +1,986 @@
+模型：GPT-5.4
+
+提示词：
+Velka 是一个博客引擎，使用拟物风主题，简洁的 Teenage Engineering 风格，排版紧凑有质感， 简洁精致，帮我设计这个网站的原型。重要的页面和文章可以点击进入，带有简单的实例数据，使用独立 html
+
+回复：
+下面是基于相同提示词生成的独立 HTML 原型。设计方向采用偏硬件工业感的拟物界面，结合 Teenage Engineering 式的标签系统、旋钮感控件、紧凑栅格和高对比信息层级。页面内包含首页概览、文章列表、文章详情、Library 和 About 几个关键页面，支持点击切换与示例数据展示。
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velka / Editorial Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #d8d2c4;
+      --panel: #f4f0e8;
+      --panel-2: #e6dfd2;
+      --panel-3: #cfc6b7;
+      --ink: #171614;
+      --muted: #6d675c;
+      --line: rgba(23, 22, 20, 0.14);
+      --accent: #ff6a1a;
+      --accent-soft: #ffd2b6;
+      --green: #4f7b5b;
+      --shadow-outer: 0 18px 60px rgba(23, 22, 20, 0.18);
+      --shadow-panel: inset 0 1px 0 rgba(255,255,255,0.72), 0 1px 0 rgba(23,22,20,0.08), 0 8px 24px rgba(23,22,20,0.08);
+      --shadow-press: inset 0 2px 6px rgba(23,22,20,0.18);
+      --radius-xl: 28px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 10px;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.6), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(255,106,26,0.14), transparent 24%),
+        linear-gradient(180deg, #ded8cb, #d4ccbd);
+      color: var(--ink);
+      font-family: var(--font-display);
+    }
+
+    body {
+      padding: 28px;
+    }
+
+    .shell {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 18px;
+      border-radius: 36px;
+      background: linear-gradient(180deg, #e8e1d5, #d6cdbf);
+      box-shadow: var(--shadow-outer);
+      border: 1px solid rgba(255,255,255,0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shell::before,
+    .shell::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #b9b09f, #8d8578);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.6), 0 1px 2px rgba(0,0,0,0.18);
+      top: 14px;
+    }
+
+    .shell::before { left: 16px; }
+    .shell::after { right: 16px; }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 220px 1fr 220px;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .brand,
+    .display-strip,
+    .status-bank,
+    .sidebar,
+    .viewport,
+    .inspector {
+      background: linear-gradient(180deg, rgba(255,255,255,0.4), rgba(255,255,255,0.08)), var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .brand,
+    .display-strip,
+    .status-bank { min-height: 108px; }
+
+    .brand {
+      border-radius: 22px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .brand-mark {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #1e1d1a, #090909);
+      color: #fff8ee;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 1.3rem;
+      letter-spacing: 0.08em;
+    }
+
+    .brand-copy h1,
+    .page-copy h2,
+    .section-title,
+    .article-title,
+    .inspector h3 {
+      margin: 0;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-copy h1 {
+      font-size: 1.45rem;
+      text-transform: uppercase;
+    }
+
+    .brand-copy p,
+    .status-note,
+    .microcopy,
+    .article-meta,
+    .article-body,
+    .library-copy,
+    .about-copy,
+    .inspector p,
+    .footer-note {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .display-strip {
+      border-radius: 24px;
+      padding: 18px 22px;
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .display-glow {
+      border-radius: 20px;
+      padding: 16px 18px;
+      background: linear-gradient(180deg, #151412, #272420);
+      color: #fef7ec;
+      min-height: 72px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+    }
+
+    .display-glow strong,
+    .metric-value,
+    .page-eyebrow,
+    .tag,
+    .stat-badge,
+    .nav-button,
+    .pill,
+    .article-chip,
+    .list-type,
+    .footer-note {
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      padding: 12px;
+      border-radius: 16px;
+      background: var(--panel-2);
+      border: 1px solid rgba(23,22,20,0.08);
+    }
+
+    .metric-label {
+      font-size: 0.74rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-size: 1rem;
+      color: var(--ink);
+    }
+
+    .status-bank {
+      border-radius: 22px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    .dial-row,
+    .status-row,
+    .footer-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .dial {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(23,22,20,0.14);
+      background: radial-gradient(circle at 35% 35%, #fdf8f0, #bbb09d 70%, #8d8579 100%);
+      position: relative;
+    }
+
+    .dial::after {
+      content: '';
+      position: absolute;
+      width: 2px;
+      height: 10px;
+      background: #2a2723;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%) rotate(22deg);
+      transform-origin: bottom center;
+      border-radius: 2px;
+    }
+
+    .status-led {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(79,123,91,0.14);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr) 300px;
+      gap: 16px;
+      min-height: 760px;
+    }
+
+    .sidebar,
+    .viewport,
+    .inspector {
+      border-radius: 26px;
+      padding: 18px;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .section-title {
+      font-size: 0.92rem;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .nav-button,
+    .story-card,
+    .mini-card,
+    .resource-card,
+    .about-panel,
+    .filter-chip {
+      border: 1px solid rgba(23,22,20,0.1);
+      background: var(--panel-2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.58);
+    }
+
+    .nav-button {
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 0.78rem;
+    }
+
+    .nav-button.active {
+      background: linear-gradient(180deg, #1a1917, #2d2924);
+      color: #fff6ea;
+      border-color: transparent;
+      box-shadow: var(--shadow-press);
+    }
+
+    .nav-stack,
+    .story-grid,
+    .resource-grid,
+    .about-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .sidebar-panel {
+      padding: 14px;
+      border-radius: 16px;
+      background: var(--panel-2);
+      border: 1px solid rgba(23,22,20,0.08);
+    }
+
+    .viewport {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow: hidden;
+    }
+
+    .page {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 100%;
+    }
+
+    .page.active {
+      display: flex;
+    }
+
+    .page-hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 14px;
+    }
+
+    .hero-card,
+    .hero-side,
+    .story-card,
+    .story-article,
+    .resource-card,
+    .about-panel,
+    .inspector-card,
+    .footer-bar {
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #1d1b18 0%, #2f2b25 55%, #71553c 100%);
+      color: #fff5e8;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      inset: auto -40px -40px auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,106,26,0.42), transparent 70%);
+    }
+
+    .page-eyebrow {
+      font-size: 0.72rem;
+      color: rgba(255,245,232,0.68);
+      margin-bottom: 8px;
+    }
+
+    .page-copy h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 0.94;
+      margin-bottom: 10px;
+      max-width: 9ch;
+    }
+
+    .hero-side,
+    .story-article,
+    .inspector-card,
+    .resource-card,
+    .about-panel {
+      background: var(--panel-2);
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .tag-row,
+    .chip-row,
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag,
+    .pill,
+    .article-chip,
+    .filter-chip,
+    .stat-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.69rem;
+      border: 1px solid rgba(23,22,20,0.12);
+      background: rgba(255,255,255,0.4);
+    }
+
+    .stat-badge.accent,
+    .filter-chip.active {
+      background: var(--accent);
+      color: white;
+      border-color: transparent;
+    }
+
+    .story-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .story-card {
+      padding: 14px;
+      border-radius: 18px;
+      cursor: pointer;
+    }
+
+    .story-card.active {
+      outline: 2px solid rgba(255,106,26,0.5);
+      background: linear-gradient(180deg, #fff0e5, #eadcca);
+    }
+
+    .story-card h3,
+    .resource-card h3,
+    .about-panel h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .story-article {
+      display: grid;
+      gap: 12px;
+    }
+
+    .article-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      flex-wrap: wrap;
+    }
+
+    .article-title {
+      font-size: 1.75rem;
+      max-width: 16ch;
+    }
+
+    .article-body {
+      font-size: 0.98rem;
+      line-height: 1.75;
+      color: #4b463e;
+    }
+
+    .quote-box {
+      border-left: 4px solid var(--accent);
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.34);
+      color: #3b3731;
+    }
+
+    .resource-grid,
+    .about-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .resource-card p,
+    .about-panel p,
+    .sidebar-panel p {
+      line-height: 1.65;
+    }
+
+    .inspector {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .inspector h3 {
+      font-size: 1rem;
+    }
+
+    .knob-bank {
+      display: flex;
+      gap: 14px;
+      justify-content: space-between;
+    }
+
+    .knob {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+    }
+
+    .knob-face {
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      margin: 0 auto 10px;
+      background: radial-gradient(circle at 32% 30%, #fffcf5, #c7bcab 64%, #8c8275 100%);
+      border: 1px solid rgba(23,22,20,0.14);
+      position: relative;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.48), 0 4px 10px rgba(23,22,20,0.12);
+    }
+
+    .knob-face::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 10px;
+      width: 4px;
+      height: 20px;
+      background: #27231f;
+      border-radius: 4px;
+      transform: translateX(-50%);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 74px 1fr;
+      gap: 12px;
+      align-items: start;
+      font-size: 0.84rem;
+    }
+
+    .timeline-item strong,
+    .scoreboard strong {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .score {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.4);
+      border: 1px solid rgba(23,22,20,0.08);
+    }
+
+    .score span {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.2rem;
+    }
+
+    .footer-bar {
+      justify-content: space-between;
+      background: linear-gradient(180deg, #d7cebf, #cfc5b5);
+      border: 1px solid rgba(23,22,20,0.1);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 1120px) {
+      .workspace,
+      .topbar,
+      .page-hero,
+      .story-grid,
+      .resource-grid,
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .workspace {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 14px; }
+      .shell { padding: 12px; border-radius: 24px; }
+      .sidebar,
+      .viewport,
+      .inspector { border-radius: 20px; }
+      .display-strip { padding: 14px; }
+      .article-head { flex-direction: column; }
+      .knob-bank { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="topbar">
+      <div class="brand">
+        <div class="brand-mark">V</div>
+        <div class="brand-copy">
+          <h1>Velka</h1>
+          <p>Editorial engine for compact, tactile publishing.</p>
+        </div>
+      </div>
+
+      <div class="display-strip">
+        <div class="display-glow">
+          <strong>Featured Signal</strong>
+          <div>Issue 024 is live: redesigning calm interfaces for noisy networks.</div>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">Published</div>
+            <div class="metric-value">126 notes</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Readers</div>
+            <div class="metric-value">18.4k / month</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-bank">
+        <div class="dial-row">
+          <div class="dial"></div>
+          <div class="dial"></div>
+          <div class="dial"></div>
+        </div>
+        <div class="status-row">
+          <div class="status-led"></div>
+          <p class="status-note">Publishing bus stable / archive indexed</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <aside class="sidebar">
+        <div>
+          <div class="section-title">Pages</div>
+          <div class="nav-stack">
+            <button class="nav-button active" data-page-target="home">Home</button>
+            <button class="nav-button" data-page-target="journal">Journal</button>
+            <button class="nav-button" data-page-target="library">Library</button>
+            <button class="nav-button" data-page-target="about">About</button>
+          </div>
+        </div>
+
+        <div class="sidebar-panel">
+          <div class="section-title">Format</div>
+          <div class="chip-row">
+            <span class="pill">Essay</span>
+            <span class="pill">Field Notes</span>
+            <span class="pill">Audio Log</span>
+          </div>
+        </div>
+
+        <div class="sidebar-panel">
+          <div class="section-title">Current Issue</div>
+          <p>Vol. 24 / Quiet Machines. A set of essays about devices, rituals, and interface restraint.</p>
+        </div>
+      </aside>
+
+      <main class="viewport">
+        <section class="page active" data-page="home">
+          <div class="page-hero">
+            <div class="hero-card">
+              <div class="page-eyebrow">Home / Editorial Console</div>
+              <div class="page-copy">
+                <h2>Compact publishing with tactile rhythm.</h2>
+                <p class="microcopy">Velka treats a blog like a small desktop device: crisp controls, dense structure, and calm typography for deliberate reading.</p>
+              </div>
+            </div>
+            <div class="hero-side">
+              <div class="tag-row">
+                <span class="tag">Teenage Engineering mood</span>
+                <span class="tag">Skeuomorphic shell</span>
+                <span class="tag">Single-file prototype</span>
+              </div>
+              <p class="microcopy">The core pages are exposed as tabs, while article cards and references open inline without leaving the prototype.</p>
+            </div>
+          </div>
+
+          <div class="story-grid">
+            <article class="story-card active" data-article-target="calm-interfaces">
+              <div class="article-meta">Issue 024 / 12 min read</div>
+              <h3>Designing calm interfaces for noisy networks</h3>
+              <p class="microcopy">A lead essay about lowering cognitive volume without becoming bland.</p>
+            </article>
+            <article class="story-card" data-article-target="desk-rituals">
+              <div class="article-meta">Field Notes / 5 min read</div>
+              <h3>Desk rituals from compact studios</h3>
+              <p class="microcopy">Small observations on tools, friction, and physical arrangement.</p>
+            </article>
+            <article class="story-card" data-article-target="mono-systems">
+              <div class="article-meta">Audio Log / 7 min read</div>
+              <h3>Monochrome systems that still feel alive</h3>
+              <p class="microcopy">How color restraint can increase texture rather than erase it.</p>
+            </article>
+          </div>
+
+          <article class="story-article" data-article="calm-interfaces">
+            <div class="article-head">
+              <div>
+                <div class="article-meta">Featured article</div>
+                <h3 class="article-title">Designing calm interfaces for noisy networks</h3>
+              </div>
+              <div class="chip-row">
+                <span class="article-chip">signal design</span>
+                <span class="article-chip">ritual UI</span>
+              </div>
+            </div>
+            <p class="article-body">When every panel competes for attention, publishing becomes performance instead of reading. Velka pushes in the opposite direction: strong containers, restrained accents, and very legible blocks that feel closer to physical modules than floating web cards.</p>
+            <div class="quote-box">“A blog can behave like a dependable instrument panel: tactile enough to invite action, quiet enough to preserve thought.”</div>
+            <p class="article-body">This prototype uses hardware-like framing, clear labels, and dense but breathable spacing. Important destinations stay one click away, while details load in place so the reader never loses orientation.</p>
+          </article>
+
+          <article class="story-article hidden" data-article="desk-rituals">
+            <div class="article-head">
+              <div>
+                <div class="article-meta">Field notes</div>
+                <h3 class="article-title">Desk rituals from compact studios</h3>
+              </div>
+              <div class="chip-row">
+                <span class="article-chip">workflow</span>
+                <span class="article-chip">objects</span>
+              </div>
+            </div>
+            <p class="article-body">Compact creative spaces reward interfaces that respect proximity. The best setups keep references close, avoid modal dead ends, and let the reader move from index to detail with the feeling of flipping labeled switches.</p>
+            <div class="quote-box">The skeuomorphic layer here is structural, not decorative: mass, panel seams, and small indicators establish hierarchy without excess chrome.</div>
+            <p class="article-body">That is why the prototype leans on fixed modules, tiny control labels, and subtle material gradients instead of ornamental illustrations.</p>
+          </article>
+
+          <article class="story-article hidden" data-article="mono-systems">
+            <div class="article-head">
+              <div>
+                <div class="article-meta">Audio log transcript</div>
+                <h3 class="article-title">Monochrome systems that still feel alive</h3>
+              </div>
+              <div class="chip-row">
+                <span class="article-chip">tone</span>
+                <span class="article-chip">materials</span>
+              </div>
+            </div>
+            <p class="article-body">A restrained palette does not need to flatten identity. By combining warm neutrals, crisp black shapes, and one bright industrial accent, the interface feels editorial and device-like at the same time.</p>
+            <div class="quote-box">Texture comes from borders, recessed panels, and contrast in scale rather than from many colors.</div>
+            <p class="article-body">This balance helps Velka echo Teenage Engineering references while still behaving like a usable content product instead of a mood board.</p>
+          </article>
+        </section>
+
+        <section class="page" data-page="journal">
+          <div class="page-hero">
+            <div class="hero-card">
+              <div class="page-eyebrow">Journal / Archive View</div>
+              <div class="page-copy">
+                <h2>Recent writing with compact metadata.</h2>
+                <p class="microcopy">A dense list designed for quick scanning: every card exposes type, issue, and reading time.</p>
+              </div>
+            </div>
+            <div class="hero-side">
+              <div class="filter-row">
+                <span class="filter-chip active">All</span>
+                <span class="filter-chip">Essay</span>
+                <span class="filter-chip">Notes</span>
+                <span class="filter-chip">Audio</span>
+              </div>
+              <p class="microcopy">Each journal item is intentionally compact so the archive feels like a control panel rather than an endless feed.</p>
+            </div>
+          </div>
+
+          <div class="story-grid">
+            <article class="story-card">
+              <div class="list-type">Essay / 12 min</div>
+              <h3>Quiet Machines in Public Spaces</h3>
+              <p class="microcopy">How devices with strong physical identity soften digital overload.</p>
+            </article>
+            <article class="story-card">
+              <div class="list-type">Field Notes / 4 min</div>
+              <h3>Three labels every editorial system needs</h3>
+              <p class="microcopy">Issue, type, duration. Minimal metadata, maximum orientation.</p>
+            </article>
+            <article class="story-card">
+              <div class="list-type">Audio Log / 8 min</div>
+              <h3>The case for single-accent color systems</h3>
+              <p class="microcopy">Industrial warmth through one active hue and many careful neutrals.</p>
+            </article>
+          </div>
+
+          <div class="footer-bar">
+            <span class="footer-note">Archive depth: 24 issues / 126 entries</span>
+            <span class="stat-badge accent">Reader mode ready</span>
+          </div>
+        </section>
+
+        <section class="page" data-page="library">
+          <div class="page-hero">
+            <div class="hero-card">
+              <div class="page-eyebrow">Library / Reference Shelf</div>
+              <div class="page-copy">
+                <h2>Reusable references, components, and field material.</h2>
+                <p class="microcopy">A secondary page for curated links, issue kits, and reusable editorial patterns.</p>
+              </div>
+            </div>
+            <div class="hero-side">
+              <div class="tag-row">
+                <span class="tag">Reference Kits</span>
+                <span class="tag">Reading Lists</span>
+                <span class="tag">Visual Parts</span>
+              </div>
+              <p class="microcopy">This section shows how Velka can extend beyond posts into a lightweight knowledge shelf.</p>
+            </div>
+          </div>
+
+          <div class="resource-grid">
+            <article class="resource-card">
+              <h3>Issue 024 Source Pack</h3>
+              <p class="library-copy">Mood references, wireframe fragments, and type tests used for Quiet Machines.</p>
+            </article>
+            <article class="resource-card">
+              <h3>Editorial Labels</h3>
+              <p class="library-copy">A compact schema for post type, cadence, season, and duration.</p>
+            </article>
+            <article class="resource-card">
+              <h3>Studio Reading List</h3>
+              <p class="library-copy">Books and articles on devices, industrial design, and calm interface systems.</p>
+            </article>
+            <article class="resource-card">
+              <h3>Component Scrapbook</h3>
+              <p class="library-copy">Panels, tags, dial motifs, and display strips used across the prototype.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="page" data-page="about">
+          <div class="page-hero">
+            <div class="hero-card">
+              <div class="page-eyebrow">About / System Notes</div>
+              <div class="page-copy">
+                <h2>An editorial engine shaped like a small instrument.</h2>
+                <p class="microcopy">Velka is conceived as a publishing product for essays, field notes, and compact archives.</p>
+              </div>
+            </div>
+            <div class="hero-side">
+              <div class="tag-row">
+                <span class="tag">Independent blog engine</span>
+                <span class="tag">Compact publishing</span>
+              </div>
+              <p class="microcopy">The layout uses tactile shells and clear labeling to create a memorable editorial identity.</p>
+            </div>
+          </div>
+
+          <div class="about-grid">
+            <article class="about-panel">
+              <h3>Why this direction</h3>
+              <p class="about-copy">The request combines skeuomorphism with Teenage Engineering references, so the UI focuses on industrial materials, device framing, and carefully controlled accent color.</p>
+            </article>
+            <article class="about-panel">
+              <h3>Prototype scope</h3>
+              <p class="about-copy">Home, Journal, Library, and About are all represented. Important articles can be opened inline, covering the main navigation and reading loop.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <aside class="inspector">
+        <div class="inspector-card">
+          <h3>Control Surface</h3>
+          <p>Three oversized knobs suggest adjustable reading intensity, archive density, and issue focus.</p>
+          <div class="knob-bank">
+            <div class="knob">
+              <div class="knob-face"></div>
+              <div class="microcopy">Focus</div>
+            </div>
+            <div class="knob">
+              <div class="knob-face"></div>
+              <div class="microcopy">Density</div>
+            </div>
+            <div class="knob">
+              <div class="knob-face"></div>
+              <div class="microcopy">Issue</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="inspector-card">
+          <h3>Publishing Timeline</h3>
+          <div class="timeline">
+            <div class="timeline-item">
+              <strong>Mon 09:00</strong>
+              <p>Issue 024 cover published with lead essay and reader note.</p>
+            </div>
+            <div class="timeline-item">
+              <strong>Tue 15:30</strong>
+              <p>Field notes and component scrapbook added to library shelf.</p>
+            </div>
+            <div class="timeline-item">
+              <strong>Thu 19:10</strong>
+              <p>Audio transcript attached to archive with updated tag set.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="inspector-card scoreboard">
+          <div class="score">
+            <strong>Cadence</strong>
+            <span>Weekly</span>
+          </div>
+          <div class="score">
+            <strong>Format Mix</strong>
+            <span>3 types</span>
+          </div>
+          <div class="score">
+            <strong>Archive</strong>
+            <span>24 issues</span>
+          </div>
+          <div class="score">
+            <strong>Members</strong>
+            <span>1.2k</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <script>
+    const pageButtons = document.querySelectorAll('[data-page-target]');
+    const pages = document.querySelectorAll('[data-page]');
+    const articleCards = document.querySelectorAll('[data-article-target]');
+    const articlePanels = document.querySelectorAll('[data-article]');
+
+    pageButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.pageTarget;
+
+        pageButtons.forEach((item) => item.classList.toggle('active', item === button));
+        pages.forEach((page) => page.classList.toggle('active', page.dataset.page === target));
+      });
+    });
+
+    articleCards.forEach((card) => {
+      card.addEventListener('click', () => {
+        const target = card.dataset.articleTarget;
+
+        articleCards.forEach((item) => item.classList.toggle('active', item === card));
+        articlePanels.forEach((panel) => panel.classList.toggle('hidden', panel.dataset.article !== target));
+      });
+    });
+  </script>
+</body>
+</html>
+```

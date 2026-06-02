@@ -1,7 +1,11 @@
 ---
-model: DeepSeek
+model:
+	- DeepSeek
+	- GPT-5.4
 date: 2025-05-26 11:04
 notes:
+	- DS version: existing web expert/deep thinking output.
+	- GPT-5.4 version: reproduced with the same prompt on 2026-06-02.
 ---
 
 # Prompt
@@ -14,5 +18,12 @@ Velka 是一个博客引擎，使用拟物风主题，简洁的 Teenage Engineer
 
 # Results
 
+## DS 版本
+
 - [Chat Conversation](./outputs/deepseek-web-conversation.txt)
 - [Result HTML](./outputs/deepseek-web-result.html)
+
+## GPT-5.4 版本
+
+- [Chat Conversation](./outputs/gpt54-web-conversation.txt)
+- [Result HTML](./outputs/gpt54-web-result.html)
