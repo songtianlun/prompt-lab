@@ -4,4 +4,4 @@
 
 | 日期 | 项目 | 模型 | 说明 |
 |------|------|------|------|
-| 2025-05-26 | [Velka 博客原型](./experiments/2025-05-26-velka-blog-prototype/) | DeepSeek Web | 拟物风博客引擎 HTML 原型 |
+| 2026-05-26 | [Velka 博客原型](./experiments/2026-05-26-velka-blog-prototype/) | DeepSeek Web | 拟物风博客引擎 HTML 原型 |
