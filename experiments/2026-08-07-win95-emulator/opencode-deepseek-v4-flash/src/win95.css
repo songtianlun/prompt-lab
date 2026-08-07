@@ -1,0 +1,350 @@
+/* ===== Win95 classic palette ===== */
+:root {
+  --w95-face: #c0c0c0;
+  --w95-white: #ffffff;
+  --w95-ltgray: #dfdfdf;
+  --w95-dkgray: #808080;
+  --w95-black: #000000;
+  --w95-navy: #000080;
+  --w95-blue: #0000a8;
+  --w95-active-title: #000080;
+  --w95-inactive-title: #808080;
+  --w95-select: #000080;
+  --w95-shadow: #808080;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: 'MS Sans Serif', 'Tahoma', 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
+  font-size: 12px;
+  -webkit-font-smoothing: none;
+  user-select: none;
+}
+
+#app {
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ===== Beveled Win95 controls ===== */
+.w95-window {
+  background: var(--w95-face);
+  border-top: 2px solid var(--w95-white);
+  border-left: 2px solid var(--w95-white);
+  border-right: 2px solid var(--w95-black);
+  border-bottom: 2px solid var(--w95-black);
+  box-shadow: inset 1px 1px 10px rgba(0, 0, 0, 0.02);
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+}
+
+.w95-titlebar {
+  background: linear-gradient(90deg, var(--w95-navy) 0%, #1084d0 100%);
+  color: white;
+  font-weight: bold;
+  padding: 3px 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.w95-titlebar.inactive {
+  background: linear-gradient(90deg, #808080 0%, #b5b5b5 100%);
+}
+
+.w95-titlebar .title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 2px;
+}
+
+.w95-titlebar .icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.w95-titlebtn {
+  width: 16px;
+  height: 14px;
+  background: var(--w95-face);
+  border-top: 2px solid var(--w95-white);
+  border-left: 2px solid var(--w95-white);
+  border-right: 2px solid var(--w95-black);
+  border-bottom: 2px solid var(--w95-black);
+  font-size: 9px;
+  line-height: 10px;
+  text-align: center;
+  color: black;
+  cursor: pointer;
+  box-sizing: content-box;
+  padding: 0;
+}
+
+.w95-titlebtn:active {
+  border-top: 2px solid var(--w95-black);
+  border-left: 2px solid var(--w95-black);
+  border-right: 2px solid var(--w95-white);
+  border-bottom: 2px solid var(--w95-white);
+}
+
+.w95-menubar {
+  display: flex;
+  background: var(--w95-face);
+  padding: 1px 0;
+  border-bottom: 1px solid var(--w95-dkgray);
+}
+
+.w95-menubar span {
+  padding: 1px 6px;
+  cursor: default;
+}
+
+.w95-menubar span.active,
+.w95-menubar span:hover {
+  background: var(--w95-select);
+  color: white;
+}
+
+.w95-body {
+  padding: 4px;
+  display: flex;
+  flex: 1;
+}
+
+/* ===== Buttons ===== */
+.w95-btn {
+  background: var(--w95-face);
+  border-top: 2px solid var(--w95-white);
+  border-left: 2px solid var(--w95-white);
+  border-right: 2px solid var(--w95-black);
+  border-bottom: 2px solid var(--w95-black);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 3px 10px;
+  cursor: pointer;
+  min-width: 60px;
+  color: black;
+}
+
+.w95-btn:active {
+  border-top: 2px solid var(--w95-black);
+  border-left: 2px solid var(--w95-black);
+  border-right: 2px solid var(--w95-white);
+  border-bottom: 2px solid var(--w95-white);
+}
+
+.w95-btn:focus {
+  outline: 1px dotted black;
+  outline-offset: -6px;
+}
+
+.w95-btn.primary {
+  border: 2px solid black;
+}
+
+/* ===== Desktop icons ===== */
+.desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 75px;
+  padding: 4px 2px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.desktop-icon img {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+.desktop-icon span {
+  color: white;
+  text-shadow: 1px 1px 1px black;
+  font-size: 11px;
+  margin-top: 3px;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.desktop-icon.selected span {
+  background: var(--w95-select);
+  outline: 1px dotted #ffff00;
+}
+
+.desktop-icon.dragging {
+  opacity: 0.8;
+}
+
+/* ===== Taskbar ===== */
+.taskbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: var(--w95-face);
+  border-top: 2px solid var(--w95-white);
+  display: flex;
+  align-items: center;
+  padding: 0 2px;
+  z-index: 10000;
+}
+
+.start-btn {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: bold;
+  font-size: 12px;
+  height: 23px;
+  padding: 0 6px;
+  margin: 0 3px;
+}
+
+.start-btn span {
+  padding-left: 2px;
+}
+
+.tray {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  height: 24px;
+  border-top: 2px solid var(--w95-black);
+  border-left: 2px solid var(--w95-black);
+  border-bottom: 2px solid var(--w95-white);
+  border-right: 2px solid var(--w95-white);
+  background: var(--w95-face);
+  padding: 0 4px;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.task-btn {
+  background: var(--w95-face);
+  border-top: 2px solid var(--w95-white);
+  border-left: 2px solid var(--w95-white);
+  border-right: 2px solid var(--w95-black);
+  border-bottom: 2px solid var(--w95-black);
+  height: 23px;
+  margin: 0 2px;
+  padding: 0 6px;
+  min-width: 110px;
+  max-width: 160px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.task-btn img {
+  width: 16px;
+  height: 16px;
+  image-rendering: pixelated;
+}
+
+.task-btn.minimized {
+  border-top: 2px solid var(--w95-black);
+  border-left: 2px solid var(--w95-black);
+  border-right: 2px solid var(--w95-white);
+  border-bottom: 2px solid var(--w95-white);
+}
+
+.task-btn span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Start menu ===== */
+.start-menu {
+  position: absolute;
+  bottom: 30px;
+  left: 3px;
+  width: 210px;
+  background: var(--w95-face);
+  border-top: 2px solid var(--w95-white);
+  border-left: 2px solid var(--w95-white);
+  border-right: 2px solid var(--w95-black);
+  border-bottom: 2px solid var(--w95-black);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  z-index: 20000;
+  display: flex;
+}
+
+.start-menu .banner {
+  width: 26px;
+  background: linear-gradient(180deg, #000080 0%, #1084d0 100%);
+  color: white;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  letter-spacing: 1px;
+  font-size: 15px;
+  padding: 6px 0;
+}
+
+.start-menu .items {
+  flex: 1;
+  padding: 4px;
+}
+
+.start-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  cursor: pointer;
+}
+
+.start-item:hover {
+  background: var(--w95-select);
+  color: white;
+}
+
+.start-item img {
+  width: 22px;
+  height: 22px;
+  image-rendering: pixelated;
+}
+
+/* ===== Desktop ===== */
+.desktop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 30px;
+  background: #008080;
+  overflow: hidden;
+}
+
+/* ===== Fieldset / group box ===== */
+.w95-fieldset {
+  border-top: 1px solid var(--w95-black);
+  border-left: 1px solid var(--w95-black);
+  border-right: 2px solid var(--w95-white);
+  border-bottom: 2px solid var(--w95-white);
+  background: var(--w95-face);
+  padding: 10px;
+  position: relative;
+}
+
+.w95-fieldset legend {
+  background: var(--w95-face);
+  padding: 0 4px;
+}

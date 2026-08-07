@@ -1,0 +1,259 @@
+/* ============================================================
+   Windows 95 Theme — authentic beveled UI
+   ============================================================ */
+
+:root {
+  --w95-surface: #c0c0c0;
+  --w95-surface-dark: #808080;
+  --w95-button-highlight: #ffffff;
+  --w95-button-light: #dfdfdf;
+  --w95-button-shadow: #808080;
+  --w95-button-dark: #0a0a0a;
+  --w95-titlebar-active: #000080;
+  --w95-titlebar-active-end: #1084d0;
+  --w95-titlebar-inactive: #808080;
+  --w95-titlebar-inactive-end: #b5b5b5;
+  --w95-desktop: #008080;
+  --w95-text: #000000;
+  --w95-disabled-text: #808080;
+  --w95-selected: #000080;
+  --w95-font: 'MS Sans Serif', 'Microsoft Sans Serif', 'Tahoma', 'DejaVu Sans', 'Geneva', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--w95-font);
+  font-size: 11px;
+  color: var(--w95-text);
+  -webkit-font-smoothing: none;
+  user-select: none;
+  cursor: default;
+}
+
+#app {
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ---------- Bevel utilities ---------- */
+
+.w95-raised {
+  box-shadow:
+    inset -1px -1px 0 0 var(--w95-button-dark),
+    inset  1px  1px 0 0 var(--w95-button-highlight),
+    inset -2px -2px 0 0 var(--w95-button-shadow),
+    inset  2px  2px 0 0 var(--w95-button-light);
+}
+
+.w95-sunken {
+  box-shadow:
+    inset -1px -1px 0 0 var(--w95-button-highlight),
+    inset  1px  1px 0 0 var(--w95-button-shadow),
+    inset -2px -2px 0 0 var(--w95-button-light),
+    inset  2px  2px 0 0 var(--w95-button-dark);
+}
+
+.w95-pressed {
+  box-shadow:
+    inset -1px -1px 0 0 var(--w95-button-light),
+    inset  1px  1px 0 0 var(--w95-button-shadow),
+    inset -2px -2px 0 0 var(--w95-button-highlight),
+    inset  2px  2px 0 0 var(--w95-button-dark);
+}
+
+/* ---------- Buttons ---------- */
+
+.w95-btn {
+  background: var(--w95-surface);
+  border: none;
+  font-family: var(--w95-font);
+  font-size: 11px;
+  color: var(--w95-text);
+  padding: 4px 10px;
+  min-width: 60px;
+  min-height: 23px;
+  position: relative;
+  box-shadow:
+    inset -1px -1px 0 0 var(--w95-button-dark),
+    inset  1px  1px 0 0 var(--w95-button-highlight),
+    inset -2px -2px 0 0 var(--w95-button-shadow),
+    inset  2px  2px 0 0 var(--w95-button-light);
+  cursor: default;
+}
+
+.w95-btn:focus {
+  outline: 1px dotted #000000;
+  outline-offset: -4px;
+}
+
+.w95-btn:active:not(:disabled) {
+  box-shadow:
+    inset -1px -1px 0 0 var(--w95-button-light),
+    inset  1px  1px 0 0 var(--w95-button-shadow),
+    inset -2px -2px 0 0 var(--w95-button-highlight),
+    inset  2px  2px 0 0 var(--w95-button-dark);
+}
+
+.w95-btn:disabled {
+  color: var(--w95-disabled-text);
+  text-shadow: 1px 1px 0 var(--w95-button-highlight);
+}
+
+/* ---------- Title bar buttons (min/max/close) ---------- */
+
+.w95-titlebar-btn {
+  width: 16px;
+  height: 14px;
+  background: var(--w95-surface);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--w95-font);
+  font-size: 9px;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0;
+  box-shadow:
+    inset -1px -1px 0 0 var(--w95-button-dark),
+    inset  1px  1px 0 0 var(--w95-button-highlight),
+    inset -2px -2px 0 0 var(--w95-button-shadow),
+    inset  2px  2px 0 0 var(--w95-button-light);
+  cursor: default;
+}
+
+.w95-titlebar-btn:active {
+  box-shadow:
+    inset -1px -1px 0 0 var(--w95-button-light),
+    inset  1px  1px 0 0 var(--w95-button-shadow),
+    inset -2px -2px 0 0 var(--w95-button-highlight),
+    inset  2px  2px 0 0 var(--w95-button-dark);
+}
+
+/* ---------- Inputs / text fields ---------- */
+
+.w95-input,
+.w95-textarea {
+  background: #ffffff;
+  border: none;
+  font-family: var(--w95-font);
+  font-size: 11px;
+  color: var(--w95-text);
+  padding: 3px 4px;
+  box-shadow:
+    inset -1px -1px 0 0 var(--w95-button-highlight),
+    inset  1px  1px 0 0 var(--w95-button-shadow),
+    inset -2px -2px 0 0 var(--w95-button-light),
+    inset  2px  2px 0 0 var(--w95-button-dark);
+}
+
+.w95-textarea {
+  resize: none;
+  user-select: text;
+}
+
+.w95-input:focus,
+.w95-textarea:focus {
+  outline: none;
+}
+
+/* ---------- Scrollbars (Win95 chunky style) ---------- */
+
+.w95-scroll::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+.w95-scroll::-webkit-scrollbar-track {
+  background-color: #c0c0c0;
+  background-image:
+    linear-gradient(45deg, #c0c0c0 25%, transparent 25%, transparent 75%, #c0c0c0 75%),
+    linear-gradient(45deg, #c0c0c0 25%, #ffffff 25%, #ffffff 75%, #c0c0c0 75%);
+  background-size: 2px 2px;
+  background-position: 0 0, 1px 1px;
+}
+.w95-scroll::-webkit-scrollbar-thumb {
+  background: var(--w95-surface);
+  box-shadow:
+    inset -1px -1px 0 0 var(--w95-button-dark),
+    inset  1px  1px 0 0 var(--w95-button-highlight),
+    inset -2px -2px 0 0 var(--w95-button-shadow),
+    inset  2px  2px 0 0 var(--w95-button-light);
+}
+.w95-scroll::-webkit-scrollbar-button:single-button {
+  background: var(--w95-surface);
+  display: block;
+  height: 16px;
+  width: 16px;
+  box-shadow:
+    inset -1px -1px 0 0 var(--w95-button-dark),
+    inset  1px  1px 0 0 var(--w95-button-highlight),
+    inset -2px -2px 0 0 var(--w95-button-shadow),
+    inset  2px  2px 0 0 var(--w95-button-light);
+}
+.w95-scroll::-webkit-scrollbar-button:vertical:start {
+  background: var(--w95-surface);
+}
+.w95-scroll::-webkit-scrollbar-corner {
+  background: var(--w95-surface);
+}
+
+/* ---------- Selection ---------- */
+
+.w95-selected {
+  background: var(--w95-selected);
+  color: #ffffff;
+}
+
+/* ---------- Misc helpers ---------- */
+
+.w95-fieldset {
+  border: none;
+  padding: 8px;
+  position: relative;
+}
+.w95-fieldset legend {
+  padding: 0 4px;
+}
+.w95-fieldset::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow:
+    inset -1px -1px 0 0 var(--w95-button-highlight),
+    inset  1px  1px 0 0 var(--w95-button-shadow),
+    inset -2px -2px 0 0 var(--w95-button-light),
+    inset  2px  2px 0 0 var(--w95-button-dark);
+}
+
+.w95-statusbar {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+}
+.w95-statusbar > div {
+  flex: 1;
+  padding: 1px 4px;
+  box-shadow:
+    inset -1px -1px 0 0 var(--w95-button-highlight),
+    inset  1px  1px 0 0 var(--w95-button-shadow),
+    inset -2px -2px 0 0 var(--w95-button-light),
+    inset  2px  2px 0 0 var(--w95-button-dark);
+}
+
+/* dotted focus ring for menu items etc */
+.w95-focus-outline:focus {
+  outline: 1px dotted #000000;
+  outline-offset: -4px;
+}
+
+/* prevent text selection on drag */
+.no-select { user-select: none; }
+.can-select { user-select: text; }
