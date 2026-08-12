@@ -1,0 +1,76 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: 🖥️
+        - generic [ref=e8]: 我的电脑
+      - generic [ref=e9]:
+        - generic [ref=e10]: 📝
+        - generic [ref=e11]: 记事本
+      - generic [ref=e12]:
+        - generic [ref=e13]: 🎨
+        - generic [ref=e14]: 画图
+      - generic [ref=e15]:
+        - generic [ref=e16]: 🧮
+        - generic [ref=e17]: 计算器
+      - generic [ref=e18]:
+        - generic [ref=e19]: 💣
+        - generic [ref=e20]: 扫雷
+      - generic [ref=e21]:
+        - generic [ref=e22]: 🃏
+        - generic [ref=e23]: 纸牌
+      - generic [ref=e24]:
+        - generic [ref=e25]: ⚙️
+        - generic [ref=e26]: 设置
+      - generic [ref=e27]:
+        - generic [ref=e28]: 💻
+        - generic [ref=e29]: MS-DOS
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e40]: 🎨
+        - generic [ref=e41]: paint
+        - generic [ref=e42]:
+          - button "_" [ref=e43] [cursor=pointer]
+          - button "□" [ref=e44] [cursor=pointer]
+          - button "✕" [ref=e45] [cursor=pointer]
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - button "✏️" [ref=e50] [cursor=pointer]
+          - button "🖌️" [ref=e51] [cursor=pointer]
+          - button "🧽" [ref=e52] [cursor=pointer]
+          - button "🪣" [ref=e53] [cursor=pointer]
+          - button "🗑️" [ref=e55] [cursor=pointer]
+          - button "💾" [ref=e56] [cursor=pointer]
+        - generic [ref=e58]:
+          - generic [ref=e59] [cursor=pointer]
+          - generic [ref=e60] [cursor=pointer]
+          - generic [ref=e61] [cursor=pointer]
+          - generic [ref=e62] [cursor=pointer]
+          - generic [ref=e63] [cursor=pointer]
+          - generic [ref=e64] [cursor=pointer]
+          - generic [ref=e65] [cursor=pointer]
+          - generic [ref=e66] [cursor=pointer]
+          - generic [ref=e67] [cursor=pointer]
+          - generic [ref=e68] [cursor=pointer]
+          - generic [ref=e69] [cursor=pointer]
+          - generic [ref=e70] [cursor=pointer]
+          - generic [ref=e71] [cursor=pointer]
+          - generic [ref=e72] [cursor=pointer]
+          - generic [ref=e73] [cursor=pointer]
+          - generic [ref=e74] [cursor=pointer]
+          - generic [ref=e75]:
+            - generic [ref=e76]: 粗细
+            - button "1" [ref=e77] [cursor=pointer]
+            - button "3" [ref=e78] [cursor=pointer]
+            - button "6" [ref=e79] [cursor=pointer]
+            - button "10" [ref=e80] [cursor=pointer]
+  - generic [ref=e30]:
+    - button "🪟 开始" [ref=e32] [cursor=pointer]:
+      - generic [ref=e33]: 🪟
+      - generic [ref=e34]: 开始
+    - button "🎨 paint" [ref=e87] [cursor=pointer]:
+      - generic [ref=e88]: 🎨
+      - generic [ref=e89]: paint
+    - generic [ref=e35]:
+      - generic "音量" [ref=e36]: 🔊
+      - generic [ref=e37]: 08:31

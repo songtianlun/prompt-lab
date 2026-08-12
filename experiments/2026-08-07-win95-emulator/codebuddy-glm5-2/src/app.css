@@ -1,0 +1,296 @@
+/* ============================================================
+   Windows 95 Global Styles
+   ============================================================ */
+
+/* MS Sans Serif fallback chain - authentic Win95 feel */
+@font-face {
+  font-family: 'W95FA';
+  src: local('MS Sans Serif'), local('Tahoma');
+  font-weight: normal;
+  font-style: normal;
+}
+
+:root {
+  /* Core palette */
+  --win-bg: #c0c0c0;
+  --win-bg-dark: #808080;
+  --win-bg-darker: #404040;
+  --win-white: #ffffff;
+  --win-black: #000000;
+  --win-light: #dfdfdf;
+  --win-desktop: #008080;
+  --win-blue: #000080;
+  --win-yellow: #ffff80;
+  --win-text: #000000;
+  --win-text-disabled: #808080;
+  --win-highlight: #000080;
+  --win-highlight-text: #ffffff;
+
+  /* 3D border colors */
+  --btn-face: #c0c0c0;
+  --btn-shadow: #808080;
+  --btn-darkshadow: #404040;
+  --btn-light: #dfdfdf;
+  --btn-highlight: #ffffff;
+
+  /* Fonts */
+  --font-ui: 'W95FA', 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, Geneva, sans-serif;
+  --font-mono: 'Courier New', Courier, monospace;
+
+  /* Sizing */
+  --titlebar-h: 22px;
+  --taskbar-h: 36px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--win-text);
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  cursor: default;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ===== 3D Beveled Surfaces ===== */
+
+/* Raised surface (buttons, window frames) */
+.bevel-out {
+  border-top: 1px solid var(--btn-highlight);
+  border-left: 1px solid var(--btn-light);
+  border-right: 1px solid var(--btn-darkshadow);
+  border-bottom: 1px solid var(--btn-shadow);
+}
+
+/* Sunken surface (text fields, content areas) */
+.bevel-in {
+  border-top: 1px solid var(--btn-darkshadow);
+  border-left: 1px solid var(--btn-shadow);
+  border-right: 1px solid var(--btn-highlight);
+  border-bottom: 1px solid var(--btn-light);
+}
+
+/* Thin sunken (status bars) */
+.bevel-in-thin {
+  border-top: 1px solid var(--btn-shadow);
+  border-left: 1px solid var(--btn-shadow);
+  border-right: 1px solid var(--btn-highlight);
+  border-bottom: 1px solid var(--btn-highlight);
+}
+
+/* Thin raised (toolbar separators) */
+.bevel-out-thin {
+  border-top: 1px solid var(--btn-highlight);
+  border-left: 1px solid var(--btn-highlight);
+  border-right: 1px solid var(--btn-shadow);
+  border-bottom: 1px solid var(--btn-shadow);
+}
+
+/* ===== Buttons ===== */
+.btn95 {
+  background: var(--btn-face);
+  border-top: 2px solid var(--btn-highlight);
+  border-left: 2px solid var(--btn-light);
+  border-right: 2px solid var(--btn-darkshadow);
+  border-bottom: 2px solid var(--btn-shadow);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  padding: 3px 10px;
+  min-width: 60px;
+  color: var(--win-text);
+  cursor: default;
+  position: relative;
+}
+
+.btn95:active,
+.btn95.pressed {
+  border-top: 2px solid var(--btn-darkshadow);
+  border-left: 2px solid var(--btn-shadow);
+  border-right: 2px solid var(--btn-highlight);
+  border-bottom: 2px solid var(--btn-light);
+  padding: 4px 9px 2px 11px;
+}
+
+.btn95:focus {
+  outline: 1px dotted var(--win-text);
+  outline-offset: -4px;
+}
+
+.btn95:disabled {
+  color: var(--win-text-disabled);
+  text-shadow: 1px 1px 0 var(--btn-highlight);
+}
+
+/* ===== Title Bar ===== */
+.titlebar {
+  height: var(--titlebar-h);
+  background: linear-gradient(90deg, var(--win-blue), #1084d0);
+  color: var(--win-white);
+  display: flex;
+  align-items: center;
+  padding: 0 2px 0 4px;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: move;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.titlebar.inactive {
+  background: linear-gradient(90deg, #808080, #b5b5b5);
+}
+
+.titlebar-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.titlebar-text {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.4);
+}
+
+.titlebar-buttons {
+  display: flex;
+  gap: 2px;
+  margin-left: 4px;
+}
+
+.titlebar-btn {
+  width: 16px;
+  height: 14px;
+  background: var(--btn-face);
+  border-top: 1px solid var(--btn-highlight);
+  border-left: 1px solid var(--btn-light);
+  border-right: 1px solid var(--btn-darkshadow);
+  border-bottom: 1px solid var(--btn-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--win-text);
+  cursor: default;
+  padding: 0;
+  line-height: 1;
+}
+
+.titlebar-btn:active {
+  border-top: 1px solid var(--btn-darkshadow);
+  border-left: 1px solid var(--btn-shadow);
+  border-right: 1px solid var(--btn-highlight);
+  border-bottom: 1px solid var(--btn-light);
+}
+
+/* ===== Menu Bar ===== */
+.menubar {
+  display: flex;
+  background: var(--win-bg);
+  padding: 1px 2px;
+  border-bottom: 1px solid var(--btn-shadow);
+  flex-shrink: 0;
+}
+
+.menubar-item {
+  padding: 2px 6px;
+  cursor: default;
+}
+
+.menubar-item:hover,
+.menubar-item.open {
+  background: var(--win-blue);
+  color: var(--win-white);
+}
+
+.menubar-item u {
+  text-decoration: underline;
+}
+
+/* ===== Scrollbars ===== */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #c0c0c0;
+  background-image:
+    linear-gradient(45deg, #c0c0c0 25%, #a0a0a0 25%, #a0a0a0 50%, #c0c0c0 50%, #c0c0c0 75%, #a0a0a0 75%);
+  background-size: 2px 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--btn-face);
+  border-top: 2px solid var(--btn-highlight);
+  border-left: 2px solid var(--btn-light);
+  border-right: 2px solid var(--btn-darkshadow);
+  border-bottom: 2px solid var(--btn-shadow);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d4d4d4;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--btn-face);
+}
+
+/* ===== Text Input ===== */
+.input95 {
+  background: var(--win-white);
+  border-top: 2px solid var(--btn-darkshadow);
+  border-left: 2px solid var(--btn-shadow);
+  border-right: 2px solid var(--btn-highlight);
+  border-bottom: 2px solid var(--btn-light);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  padding: 3px 4px;
+  color: var(--win-text);
+}
+
+.input95:focus {
+  outline: none;
+}
+
+/* ===== Selection ===== */
+::selection {
+  background: var(--win-blue);
+  color: var(--win-white);
+}
+
+/* ===== Utility ===== */
+.no-select {
+  user-select: none;
+}
+
+.dotted-focus {
+  outline: 1px dotted var(--win-text);
+  outline-offset: -3px;
+}
+
+/* Pixelated rendering for canvas/images */
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}

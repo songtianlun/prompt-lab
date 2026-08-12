@@ -1,0 +1,103 @@
+:root {
+  --win-gray: #c0c0c0;
+  --win-dark: #808080;
+  --win-darker: #404040;
+  --win-light: #ffffff;
+  --win-navy: #000080;
+  --win-blue: #0000a8;
+  --win-teal: #008080;
+  --win-black: #000000;
+  --win-face: #c0c0c0;
+  --win-highlight: #000080;
+  --win-shadow: #808080;
+  --win-title: #000080;
+  --win-font: 'MS Sans Serif', 'Tahoma', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--win-font);
+  font-size: 12px;
+  -webkit-font-smoothing: none;
+  user-select: none;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== Win95 经典边框 ===== */
+.win-outset {
+  border-top: 2px solid var(--win-light);
+  border-left: 2px solid var(--win-light);
+  border-right: 2px solid var(--win-dark);
+  border-bottom: 2px solid var(--win-dark);
+  background: var(--win-face);
+}
+
+.win-inset {
+  border-top: 2px solid var(--win-dark);
+  border-left: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-light);
+  border-bottom: 2px solid var(--win-light);
+  background: var(--win-face);
+}
+
+.win-btn {
+  background: var(--win-face);
+  border-top: 2px solid var(--win-light);
+  border-left: 2px solid var(--win-light);
+  border-right: 2px solid var(--win-dark);
+  border-bottom: 2px solid var(--win-dark);
+  padding: 3px 10px;
+  font-family: var(--win-font);
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+}
+
+.win-btn:active {
+  border-top: 2px solid var(--win-dark);
+  border-left: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-light);
+  border-bottom: 2px solid var(--win-light);
+}
+
+.win-btn:focus {
+  outline: 1px dotted var(--win-black);
+  outline-offset: -5px;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+::-webkit-scrollbar-track {
+  background: var(--win-face);
+  border-left: 2px solid var(--win-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--win-face);
+  border-top: 2px solid var(--win-light);
+  border-left: 2px solid var(--win-light);
+  border-right: 2px solid var(--win-dark);
+  border-bottom: 2px solid var(--win-dark);
+}
+::-webkit-scrollbar-button {
+  background: var(--win-face);
+  border: 2px solid var(--win-light);
+  border-right-color: var(--win-dark);
+  border-bottom-color: var(--win-dark);
+  width: 16px;
+  height: 16px;
+}
