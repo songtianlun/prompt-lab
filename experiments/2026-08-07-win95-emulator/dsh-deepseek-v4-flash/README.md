@@ -1,5 +1,10 @@
 # Windows 95 网页模拟器
 
+> 2026-08-14 构建
+> 使用 deepseek v4 flash 官方 api
+> 累计请求 188 次，消耗 token 38,515,026
+> 开销 ¥1.41
+
 一个用纯 HTML / CSS / JavaScript 构建的高还原度 Windows 95 桌面环境模拟器。
 零依赖、无构建步骤，直接双击 `index.html` 即可在浏览器中运行。
 
