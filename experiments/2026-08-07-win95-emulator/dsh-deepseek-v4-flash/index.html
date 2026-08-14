@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows 95</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M2,2 L10,2 L10,10 L2,10 Z' fill='%23df0000'/%3E%3Cpath d='M10,2 L18,2 L18,10 L10,10 Z' fill='%2300a000'/%3E%3Cpath d='M2,10 L10,10 L10,18 L2,18 Z' fill='%230000c0'/%3E%3Cpath d='M10,10 L18,10 L18,18 L10,18 Z' fill='%23f0c000'/%3E%3Cpath d='M2,2 L18,2 L18,18 L2,18 Z' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/win95.css">
+<link rel="stylesheet" href="css/apps.css">
+</head>
+<body>
+
+<!-- ============ BOOT SCREEN ============ -->
+<div id="boot-screen">
+  <div class="boot-logo">
+    <div class="boot-flag">
+      <svg viewBox="0 0 320 320" width="280" height="280">
+        <defs>
+          <clipPath id="bootWaveClip">
+            <path d="M0,20 C30,5 60,35 90,20 C120,5 150,35 180,20 C210,5 240,35 270,20 L270,60 C240,45 210,75 180,60 C150,45 120,75 90,60 C60,45 30,75 0,60 Z"/>
+          </clipPath>
+        </defs>
+        <g>
+          <!-- red -->
+          <g clip-path="url(#bootWaveClip)">
+            <rect x="0" y="0" width="135" height="135" fill="#df0000"/>
+            <path d="M0,60 C30,45 60,75 90,60 C120,45 150,75 180,60" stroke="#df0000" stroke-width="6" fill="none"/>
+          </g>
+          <!-- green -->
+          <g clip-path="url(#bootWaveClip)">
+            <rect x="135" y="0" width="135" height="135" fill="#00a000"/>
+          </g>
+          <!-- blue -->
+          <g clip-path="url(#bootWaveClip)">
+            <rect x="0" y="135" width="135" height="135" fill="#0000c0"/>
+          </g>
+          <!-- yellow -->
+          <g clip-path="url(#bootWaveClip)">
+            <rect x="135" y="135" width="135" height="135" fill="#f0c000"/>
+          </g>
+          <!-- white wave overlay -->
+          <path d="M0,20 C30,5 60,35 90,20 C120,5 150,35 180,20 C210,5 240,35 270,20 L270,60 C240,45 210,75 180,60 C150,45 120,75 90,60 C60,45 30,75 0,60 Z"
+                fill="none" stroke="#ffffff" stroke-width="9"/>
+        </g>
+      </svg>
+    </div>
+    <div class="boot-text">
+      <span class="boot-windows">Windows</span><span class="boot-num">95</span>
+    </div>
+  </div>
+  <div class="boot-progress">
+    <div class="boot-progress-bar"></div>
+  </div>
+  <div class="boot-hint">Click anywhere to skip</div>
+</div>
+
+<!-- ============ SHUTDOWN SCREENS ============ -->
+<div id="safe-screen" class="hidden">
+  <div class="safe-text">It's now safe to turn off<br>your computer.</div>
+  <div class="safe-hint">Click to turn it back on</div>
+</div>
+<div id="dos-screen" class="hidden">
+  <div class="dos-cursor-line">C:\&gt;<span class="dos-cursor-block">&nbsp;</span></div>
+</div>
+
+<!-- ============ DESKTOP ============ -->
+<div id="desktop">
+  <div id="desktop-icons"></div>
+  <div id="desktop-rubberband" class="hidden"></div>
+</div>
+
+<!-- ============ TASKBAR ============ -->
+<div id="taskbar">
+  <button id="start-button" type="button">
+    <span class="start-flag">
+      <svg viewBox="0 0 22 22" width="18" height="18">
+        <path d="M1,2 C6,0 9,4 14,2 L14,7 C9,9 6,5 1,7 Z" fill="#df0000"/>
+        <path d="M14,2 C19,0 22,4 22,2 L22,7 C22,9 19,5 14,7 Z" fill="#00a000"/>
+        <path d="M1,9 C6,7 9,11 14,9 L14,14 C9,16 6,12 1,14 Z" fill="#0000c0"/>
+        <path d="M14,9 C19,7 22,11 22,9 L22,14 C22,16 19,12 14,14 Z" fill="#f0c000"/>
+        <path d="M1,2 C6,0 9,4 14,2 L14,7 C9,9 6,5 1,7 Z" fill="none" stroke="#fff" stroke-width="1"/>
+        <path d="M14,2 C19,0 22,4 22,2 L22,7 C22,9 19,5 14,7 Z" fill="none" stroke="#fff" stroke-width="1"/>
+      </svg>
+    </span>
+    <span class="start-label">开始</span>
+  </button>
+  <div id="taskbar-buttons"></div>
+  <div id="taskbar-tray">
+    <div id="tray-clock" title="双击打开 日期/时间 属性"></div>
+  </div>
+  <div id="start-menu" class="hidden">
+    <div class="startmenu-body">
+      <div class="startmenu-side">
+        <div class="startmenu-side-text">Windows95</div>
+      </div>
+      <div class="startmenu-items">
+        <div class="startmenu-item" data-action="programs" data-cascade="start-programs">
+          <span class="sm-icon" data-icon="folder"></span>程序(P)
+          <span class="sm-arrow">▶</span>
+        </div>
+        <div class="startmenu-item" data-action="documents" data-cascade="start-documents">
+          <span class="sm-icon" data-icon="docfolder"></span>文档(D)
+          <span class="sm-arrow">▶</span>
+        </div>
+        <div class="startmenu-item" data-action="settings" data-cascade="start-settings">
+          <span class="sm-icon" data-icon="settings"></span>设置(S)
+          <span class="sm-arrow">▶</span>
+        </div>
+        <div class="startmenu-item" data-action="find" data-cascade="start-find">
+          <span class="sm-icon" data-icon="find"></span>查找(F)
+          <span class="sm-arrow">▶</span>
+        </div>
+        <div class="startmenu-item" data-action="help">
+          <span class="sm-icon" data-icon="help"></span>帮助(H)
+        </div>
+        <div class="startmenu-item" data-action="run">
+          <span class="sm-icon" data-icon="run"></span>运行(R)...
+        </div>
+        <div class="startmenu-sep"></div>
+        <div class="startmenu-item" data-action="shutdown">
+          <span class="sm-icon" data-icon="shutdown"></span>关闭系统(U)...
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CASCADING MENUS (created dynamically) ============ -->
+<div id="menu-layer"></div>
+
+<!-- ============ DIALOG LAYER ============ -->
+<div id="dialog-layer"></div>
+
+<script src="js/w95.js"></script>
+<script src="js/wm.js"></script>
+<script src="js/dialogs.js"></script>
+<script src="js/desktop.js"></script>
+<script src="js/boot.js"></script>
+<script src="js/apps/notepad.js"></script>
+<script src="js/apps/calc.js"></script>
+<script src="js/apps/paint.js"></script>
+<script src="js/apps/minesweeper.js"></script>
+<script src="js/apps/solitaire.js"></script>
+<script src="js/apps/explorer.js"></script>
+<script src="js/apps/msdos.js"></script>
+<script src="js/apps/controlpanel.js"></script>
+<script src="js/apps/props.js"></script>
+<script src="js/apps/misc.js"></script>
+<script src="js/apps/help.js"></script>
+<script src="js/apps/welcome.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

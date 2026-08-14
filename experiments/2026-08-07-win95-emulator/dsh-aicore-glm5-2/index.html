@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows 95</title>
+<link rel="stylesheet" href="css/win95.css">
+<link rel="stylesheet" href="css/programs.css">
+</head>
+<body>
+
+<!-- ===== BIOS / Boot screen ===== -->
+<div id="bios-screen" class="bios-screen">
+  <div class="bios-content">
+    <div class="bios-logo">
+      <pre>
+  Award Modular BIOS v4.51PG, An Energy Star Ally
+  Copyright (C) 1984-95, Award Software, Inc.
+
+  ASUS P/I-P55T2P4 ACPI BIOS Revision 1.04
+      </pre>
+    </div>
+    <div class="bios-memory" id="bios-memory">
+      Memory Test : 65536K OK
+    </div>
+    <div class="bios-detect" id="bios-detect">
+    </div>
+    <div class="bios-pause">Press DEL to enter SETUP, ESC to skip memory test</div>
+  </div>
+</div>
+
+<!-- ===== Windows 95 starting splash ===== -->
+<div id="boot-splash" class="boot-splash" style="display:none">
+  <div class="boot-splash-inner">
+    <div class="win95-flag">
+      <div class="flag-quad flag-r"></div>
+      <div class="flag-quad flag-g"></div>
+      <div class="flag-quad flag-b"></div>
+      <div class="flag-quad flag-y"></div>
+    </div>
+    <div class="boot-splash-text">
+      <span class="ms-sans">Microsoft</span><br>
+      <span class="win95-name">Windows<span class="win95-sup">95</span></span>
+    </div>
+    <div class="boot-splash-loading">
+      <div class="loading-bar"><div class="loading-bar-inner" id="loading-bar-inner"></div></div>
+    </div>
+    <div class="boot-splash-copyright">
+      Starting Windows 95...
+    </div>
+  </div>
+</div>
+
+<!-- ===== Shutdown screens ===== -->
+<div id="shutdown-screen" class="shutdown-screen" style="display:none">
+  <div class="shutdown-inner">
+    <div class="win95-flag win95-flag-big">
+      <div class="flag-quad flag-r"></div>
+      <div class="flag-quad flag-g"></div>
+      <div class="flag-quad flag-b"></div>
+      <div class="flag-quad flag-y"></div>
+    </div>
+    <div class="shutdown-text">
+      <span class="ms-sans">Microsoft</span><br>
+      <span class="win95-name">Windows<span class="win95-sup">95</span></span>
+    </div>
+    <div class="shutdown-message" id="shutdown-message">Please wait while your computer shuts down...</div>
+  </div>
+</div>
+
+<div id="safe-off-screen" class="safe-off-screen" style="display:none">
+  <div class="safe-off-inner">
+    <div class="safe-off-text">It's now safe to turn off<br>your computer.</div>
+  </div>
+</div>
+
+<!-- ===== Desktop ===== -->
+<div id="desktop" class="desktop" style="display:none">
+  <!-- Desktop icons -->
+  <div class="desktop-icons" id="desktop-icons">
+    <!-- icons injected by JS -->
+  </div>
+
+  <!-- Windows container -->
+  <div id="windows-container"></div>
+
+  <!-- Context menu -->
+  <div id="context-menu" class="context-menu" style="display:none"></div>
+
+  <!-- Start menu -->
+  <div id="start-menu" class="start-menu" style="display:none">
+    <div class="start-menu-sidebar">
+      <div class="start-menu-side-text">Windows<span class="start-sup">95</span></div>
+    </div>
+    <div class="start-menu-items" id="start-menu-items">
+      <!-- items injected by JS -->
+    </div>
+  </div>
+
+  <!-- Taskbar -->
+  <div id="taskbar" class="taskbar">
+    <button id="start-button" class="start-button" aria-label="Start">
+      <span class="win-flag-mini">
+        <span class="wf-r"></span><span class="wf-g"></span><span class="wf-b"></span><span class="wf-y"></span>
+      </span>
+      <span class="start-button-text">Start</span>
+    </button>
+    <div class="taskbar-divider"></div>
+    <div id="taskbar-tasks" class="taskbar-tasks"></div>
+    <div id="system-tray" class="system-tray">
+      <span class="tray-icon" id="tray-volume" title="Volume">🔊</span>
+      <span class="tray-clock" id="tray-clock">12:00 PM</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Run dialog ===== -->
+<div id="run-dialog" class="window run-dialog" style="display:none">
+  <!-- injected -->
+</div>
+
+<script src="js/util.js"></script>
+<script src="js/boot.js"></script>
+<script src="js/window.js"></script>
+<script src="js/desktop.js"></script>
+<script src="js/taskbar.js"></script>
+<script src="js/programs/notepad.js"></script>
+<script src="js/programs/calculator.js"></script>
+<script src="js/programs/minesweeper.js"></script>
+<script src="js/programs/paint.js"></script>
+<script src="js/programs/mycomputer.js"></script>
+<script src="js/programs/explorer.js"></script>
+<script src="js/programs/ie.js"></script>
+<script src="js/programs/help.js"></script>
+<script src="js/programs/about.js"></script>
+<script src="js/programs/run.js"></script>
+<script src="js/programs/controlpanel.js"></script>
+<script src="js/programs/shutdown.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

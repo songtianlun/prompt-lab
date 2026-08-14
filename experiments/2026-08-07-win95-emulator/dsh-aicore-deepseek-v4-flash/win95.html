@@ -1,0 +1,1915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows 95 模拟器</title>
+<style>
+/* ============================================================
+   WINDOWS 95 EMULATOR - 由 AI 生成的 Win95 网页模拟器
+   ============================================================ */
+:root{
+  --w95-border: #DFDFDF;      /* 高光 */
+  --w95-face:   #C0C0C0;      /* 标准钢灰 */
+  --w95-shadow: #000000;      /* 深阴影 */
+  --w95-dark:   #808080;      /* 窗口边框灰 */
+  --w95-navy:   #000080;      /* 标题栏深蓝 */
+  --w95-focus:  #1084D0;      /* 浅蓝 */
+  --w95-teal:   #008080;
+  --font-w95: 'MS Sans Serif','Tahoma','Verdana','Geneva',sans-serif;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; overflow:hidden; }
+body{
+  font-family:var(--font-w95);
+  font-size:11px;
+  color:#000;
+  cursor:default;
+  user-select:none;
+  -webkit-user-select:none;
+  background:#008080;
+}
+img{ -webkit-user-drag:none; }
+
+/* ============ DESKTOP ============ */
+#desktop{
+  position:fixed; inset:0;
+  background:#008080;
+  overflow:hidden;
+}
+#desktopWallpaper{
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at 20% 15%, #29b6c4 0%, #057a86 55%, #044e57 100%);
+}
+/* 桌面图标区 */
+#icons{
+  position:absolute; top:4px; left:4px;
+  display:flex; flex-direction:column; flex-wrap:wrap;
+  align-content:flex-start;
+  height:calc(100% - 44px);
+}
+.desktop-icon{
+  width:80px; height:80px;
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:flex-start; padding:6px 2px;
+  text-align:center; color:#fff;
+  text-shadow:1px 1px 1px #000;
+  cursor:default;
+}
+.desktop-icon .ic{
+  width:32px; height:32px; flex:0 0 auto;
+}
+.desktop-icon .lbl{
+  margin-top:4px; line-height:1.15; word-break:break-word;
+  font-size:11px;
+}
+.desktop-icon.selected .lbl{
+  background:var(--w95-navy); color:#fff;
+}
+
+/* ============ WINDOW ============ */
+.window{
+  position:absolute;
+  background:var(--w95-face);
+  border:1px solid var(--w95-shadow);
+  outline:1px solid var(--w95-dark);
+  outline-offset:0;
+  box-shadow:inset 1px 1px 0 var(--w95-border), 2px 2px 0 rgba(0,0,0,0.35);
+  min-width:180px;
+}
+.window.inactive .wtitlebar{
+  background-image:linear-gradient(90deg,#808080,#B5B5B5);
+}
+.wtitlebar{
+  height:21px;
+  background-image:linear-gradient(90deg,#000080,#1084D0);
+  display:flex; align-items:center;
+  padding:2px 2px 2px 4px;
+}
+.wtitlebar .title{
+  flex:1; color:#fff; font-weight:bold;
+  font-size:11px; white-space:nowrap; overflow:hidden;
+  display:flex; align-items:center; gap:4px;
+  text-shadow:1px 1px 0 #000;
+}
+.wtitlebar .title .tic{ width:16px;height:16px;flex:0 0 auto; }
+.wtbtn{
+  width:18px; height:18px; margin-left:2px;
+  flex:0 0 auto;
+  font-size:8px; font-weight:bold;
+}
+.wmenu{
+  display:none;
+  height:19px; border-bottom:1px solid #808080;
+  padding:1px 2px 0;
+}
+.window.withmenu .wmenu{ display:flex; align-items:stretch; }
+.wmenu span{
+  padding:1px 6px; line-height:16px; font-size:11px;
+}
+.wmenu span.active{ background:var(--w95-navy); color:#fff; }
+.wbody{
+  background:var(--w95-face);
+  border:1px solid #808080;
+  margin:2px;
+  margin-top:0;
+  position:relative;
+  overflow:hidden;
+}
+.window.maximized{
+  border:0; box-shadow:none;
+  left:0 !important; top:0 !important;
+  width:100% !important; height:100% !important;
+}
+.window.maximized .wbody{ margin:2px; }
+/* 缩放把手 */
+.resizer{
+  position:absolute; width:12px;height:12px; right:0;bottom:0;
+  cursor:se-resize;
+}
+
+/* 通用按钮（95立体积感） */
+.btn{
+  font-family:var(--font-w95); font-size:11px;
+  background:var(--w95-face);
+  color:#000;
+  border:1px solid var(--w95-dark);
+  box-shadow:inset -1px -1px 0 #000, inset 1px 1px 0 #fff;
+  padding:4px 14px;
+  cursor:default;
+  white-space:nowrap;
+}
+.btn:active{
+  box-shadow:inset -1px -1px 0 #fff, inset 1px 1px 0 #000;
+  padding:5px 13px 3px 15px;
+}
+.btn:focus{ outline:1px dotted #000; outline-offset:-5px; }
+.btn[disabled]{ color:#808080; text-shadow:1px 1px 0 #fff; }
+.btn.primary:focus{ outline:1px dotted #000; }
+
+/* 表单控件 */
+input[type=text], input[type=password], textarea, select, .field{
+  font-family:var(--font-w95); font-size:11px;
+  background:#fff;
+  border:1px solid;
+  border-color:#000 #fff #fff #000;
+  box-shadow:inset 1px 1px 0 #808080;
+  padding:2px 4px; color:#000;
+}
+textarea{ resize:none; outline:none; }
+
+/* 状态栏 */
+.statusbar{
+  height:20px; border-top:1px solid #fff;
+  background:var(--w95-face);
+  display:flex; align-items:stretch;
+  padding:2px;
+  gap:2px;
+}
+.statusbar>div{
+  border:1px solid;
+  border-color:#808080 #fff #fff #808080;
+  padding:1px 6px; line-height:14px; font-size:11px; white-space:nowrap; overflow:hidden;
+}
+
+/* ============ TASKBAR ============ */
+#taskbar{
+  position:fixed; left:0; right:0; bottom:0; height:27px;
+  z-index:9999;
+  background:var(--w95-face);
+  border-top:1px solid #fff;
+  box-shadow:inset 0 1px 0 #DFDFDF;
+  display:flex; align-items:center;
+  padding:2px;
+  gap:2px;
+}
+#startBtn{
+  height:21px; flex:0 0 auto;
+  display:flex; align-items:center; gap:3px;
+  font-weight:bold; font-size:11px;
+  padding:2px 6px;
+}
+#startBtn .flg{ width:16px;height:14px; }
+#startBtn.open{
+  box-shadow:inset -1px -1px 0 #fff, inset 1px 1px 0 #000;
+  padding:3px 5px 1px 7px;
+}
+#taskbarSep{
+  width:2px; height:21px; margin:0 2px; flex:0 0 auto;
+}
+#tray{
+  height:21px; flex:0 0 auto;
+  display:flex; align-items:center; gap:4px;
+  padding:0 5px;
+  border:1px solid;
+  border-color:#808080 #fff #fff #808080;
+}
+#clock{ font-size:11px; }
+#trayDivider{ width:2px;height:19px;background:#808080; }
+#taskButtons{
+  flex:1; display:flex; align-items:center; gap:2px; overflow:hidden;
+}
+.taskbtn{
+  height:21px; min-width:120px; max-width:160px;
+  font-size:11px;
+  display:flex; align-items:center; gap:4px;
+  padding:2px 4px; overflow:hidden;
+  background:var(--w95-face);
+  border:1px solid;
+  border-color:#fff #000 #000 #fff;
+  box-shadow:inset -1px -1px 0 #808080, inset 1px 1px 0 #DFDFDF;
+}
+.taskbtn .tic{ width:16px;height:16px;flex:0 0 auto; }
+.taskbtn span{ white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.taskbtn.active{
+  box-shadow:inset -1px -1px 0 #DFDFDF, inset 1px 1px 0 #808080;
+  border-color:#808080 #fff #fff #808080;
+  background:#d4d0c8;
+}
+
+/* ============ START MENU ============ */
+#startMenu{
+  position:fixed; left:2px; bottom:28px;
+  width:200px;
+  background:var(--w95-face);
+  border:1px solid #000;
+  outline:1px solid #DFDFDF;
+  box-shadow:inset -1px -1px 0 #808080, 2px 2px 4px rgba(0,0,0,0.4);
+  display:none;
+  z-index:10000;
+  padding:2px;
+}
+#startMenu.open{ display:block; }
+#smlogo{
+  font-family:'Wingdings','Segoe UI Symbol',symbols;
+  writing-mode:vertical-rl;
+  background-image:linear-gradient(180deg,#00006a,#1a9bd8 40%,#1a9bd8 60%,#00006a);
+  color:#fff; font-weight:bold; font-size:20px;
+  letter-spacing:2px;
+  text-align:center;
+  padding:6px 2px;
+  float:left; width:22px; height:100%;
+  border-right:1px solid #404040;
+}
+#smBody{ margin-left:24px; padding:1px; }
+.sm-item{
+  display:flex; align-items:center; gap:8px;
+  padding:4px 6px 4px 4px;
+  font-size:11px;
+}
+.sm-item .ic{ width:26px;height:26px;flex:0 0 auto; }
+.sm-item span{ white-space:nowrap; }
+.sm-item.sub > .arrow{ margin-left:auto; }
+.sm-item.hover{ background:var(--w95-navy); color:#fff; }
+.sm-sep{ height:1px; background:#808080; margin:2px 1px;
+  box-shadow:0 1px 0 #fff;
+}
+
+/* ---------- 级联子菜单 ---------- */
+.submenu{
+  position:fixed;
+  background:var(--w95-face);
+  border:1px solid #000; outline:1px solid #DFDFDF;
+  box-shadow:inset -1px -1px 0 #808080, 2px 2px 4px rgba(0,0,0,0.4);
+  display:none; z-index:10001; padding:2px; min-width:160px;
+}
+.submenu.open{ display:block; }
+.submenu .sm-item{ padding-right:12px; }
+.submenu .sm-item.open{ background:var(--w95-navy); color:#fff; }
+
+/* ============ 系统提示框 ============ */
+#msgbox{
+  position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+  background:var(--w95-face);
+  border:1px solid #000; outline:1px solid #fff;
+  box-shadow:inset -1px -1px 0 #808080, inset 1px 1px 0 #DFDFDF, 4px 4px 8px rgba(0,0,0,0.45);
+  min-width:300px; max-width:440px;
+  z-index:20000;
+  padding:3px;
+  display:none;
+}
+#msgbox .mb-title{
+  height:20px; margin:-3px -3px 0;
+  padding:0 4px;
+  background-image:linear-gradient(90deg,#000080,#1084D0);
+  color:#fff; font-weight:bold; font-size:11px;
+  line-height:20px;
+  display:flex;
+}
+#msgbox .mb-title span{ flex:1; }
+#mbBody{
+  display:flex; gap:12px; padding:16px 14px 12px;
+  align-items:flex-start;
+}
+#mbBody .mb-ic{ width:32px;height:32px;flex:0 0 auto; }
+#mbText{ line-height:1.4; padding-top:6px; }
+#mbBtns{ display:flex; justify-content:center; gap:8px; padding-bottom:10px; }
+
+/* 通用覆盖层 */
+#overlay{
+  position:fixed; inset:0; z-index:15000;
+  display:none;
+}
+#overlay.on{ display:block; }
+
+/* ============ 死机蓝屏 ============ */
+#bsod{
+  position:fixed; inset:0; z-index:30000;
+  background:#0000AA; color:#fff;
+  display:none;
+}
+#bsod.on{ display:block; }
+#bsodInner{
+  font-family:'Fixedsys','Courier New',monospace;
+  font-size:15px; line-height:1.5;
+  padding:60px 70px;
+  max-width:760px;
+}
+.bsod-blink{ animation:blink 1s steps(1) infinite; }
+@keyframes blink{ 50%{opacity:0;} }
+
+/* ============ 工具类 ============ */
+.scroll::-webkit-scrollbar{ width:16px;height:16px; }
+.scroll::-webkit-scrollbar-track{
+  background:#DFDFDF;
+  border:1px solid #808080;
+  background-image:repeating-linear-gradient(45deg,#DFDFDF,#DFDFDF 2px,#fff 2px,#fff 4px);
+}
+.scroll::-webkit-scrollbar-thumb{
+  background:var(--w95-face);
+  border:1px solid #808080;
+  box-shadow:inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+}
+.hide{ display:none !important; }
+</style>
+</head>
+<body>
+
+<!-- ============ 桌面 ============ -->
+<div id="desktop">
+  <div id="desktopWallpaper"></div>
+  <div id="icons"></div>
+</div>
+
+<!-- 任务栏 -->
+<div id="taskbar">
+  <button id="startBtn" class="btn"><img class="flg" src="" alt="">开始</button>
+  <div id="taskbarSep"></div>
+  <div id="taskButtons"></div>
+  <div id="tray">
+    <span id="trayVol">🔊</span>
+    <span id="trayLang">EN</span>
+    <div id="trayDivider"></div>
+    <span id="clock"></span>
+  </div>
+</div>
+
+<!-- 开始菜单 -->
+<div id="startMenu">
+  <div id="smlogo">Windows95</div>
+  <div id="smBody"></div>
+</div>
+
+<!-- 消息框 -->
+<div id="overlay"></div>
+<div id="msgbox" class="hide">
+  <div class="mb-title"><span id="mbTitle"></span></div>
+  <div id="mbBody"><img id="mbIc" class="mb-ic" src=""><div id="mbText"></div></div>
+  <div id="mbBtns"></div>
+</div>
+
+<!-- 蓝屏 -->
+<div id="bsod"><div id="bsodInner"></div></div>
+
+
+<script>
+
+/* ==== SOURCE: parts/01-icons.js ==== */
+/* ============================================================
+   W95 ICON LIBRARY - 用内联 SVG 绘制经典 Win95 图标
+   ============================================================ */
+var T = { approved: 1, error: 2, warn: 3, info: 4 };
+
+function svg(w,h,inner){
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 32 32">'+inner+'</svg>');
+}
+/* 经典显示器+底座图标 (My Computer / MsDos 等) */
+function iconMonitor(faceColor, innerColor, hasScreen){
+  var crtShadow='<rect x="6" y="6" width="18" height="14" fill="#000" opacity="0.25"/>';
+  var crt = '<rect x="5" y="4" width="18" height="14" fill="'+faceColor+'" stroke="#000"/>'+
+            '<rect x="7" y="6" width="14" height="10" fill="'+innerColor+'"/>'+
+            '<rect x="7" y="6" width="14" height="3" fill="'+faceColor+'" opacity="0.8"/>'+
+            '<rect x="12" y="16" width="4" height="7" fill="'+faceColor+'" stroke="#000"/>'+
+            '<rect x="8" y="23" width="12" height="2" fill="'+faceColor+'" stroke="#000"/>';
+  return svg(32,32,crtShadow+crt);
+}
+/* 文件夹 */
+function iconFolder(big){
+  var f='<path d="M4 7 L12 7 L15 10 L28 10 L28 27 L6 27 Z" fill="#C66A1B" stroke="#000"/>'+
+        '<path d="M28 27 L6 27 L6 12 L28 12 Z" fill="#F2C15D" stroke="#000"/>'+
+        '<path d="M6 12 L28 12 L28 10 L13 10 L11 8 L4 8 L4 10 L6 12 Z" fill="#C66A1B" stroke="#000"/>'+
+        '<path d="M5 12 L28 12 L28 13 L5 13 Z" fill="#fff" opacity="0.35"/>';
+  return svg(big?32:16,big?32:16,f);
+}
+/* 回收站 */
+function iconBin(isFull){
+  var bin='<path d="M12 5 L20 5 L21 8 L28 8 L26 28 L6 28 L4 8 L11 8 Z" fill="'
+   +(isFull?'#8B7FE8':'#B7E4F5')+'" stroke="#000"/>'+
+   '<path d="M6 28 L5 10 L27 10 L26 28 Z" fill="'+(isFull?'#A79BF0':'#FFFFFF')+'" stroke="#000"/>'+
+   '<path d="M11 8 L14 5 L18 5 L21 8 Z" fill="'+(isFull?'#8B7FE8':'#B7E4F5')+'" stroke="#000"/>'+
+   '<path d="M5 10 L27 10" stroke="#000"/>'+
+   '<path d="M12 5 L14 8 M20 5 L18 8 M16 8 L17 5" stroke="#000" stroke-width="0.8"/>';
+  if(isFull){
+    bin+='<path d="M20 16 L24 6 L27 18 L22 17 L20 16 Z" fill="#D8D8D8" stroke="#000"/>'+
+         '<path d="M17 22 L21 12 L24 24 L19 23 Z" fill="#EFEFEF" stroke="#000" opacity="0.9"/>';
+  }
+  return svg(32,32,bin);
+}
+/* 计算器 */
+function iconCalc(){
+  return svg(32,32,
+    '<rect x="5" y="4" width="22" height="24" fill="#C0C0C0" stroke="#000" rx="1"/>'+
+    '<rect x="8" y="7" width="16" height="4" fill="#0B7A37" stroke="#000"/>'+
+    '<text x="9" y="10.5" font-family="MS Sans Serif" font-size="6" fill="#9CFF9C">o</text>'+
+    '<g font-family="MS Sans Serif" font-size="6" fill="#000">'+
+    '<text x="9" y="17">7 8 9</text><text x="9" y="23">4 5 6</text>'+
+    '<text x="9" y="29">1 2 3</text></g>');
+}
+/* 记事本 */
+function iconNotepad(){
+  var sheet='<path d="M8 3 L21 3 L21 28 L8 28 Z" fill="#FFFFFF" stroke="#000"/>'+
+    '<path d="M21 3 L25 7 L21 7 Z" fill="#C0C0C0" stroke="#000"/>'+
+    '<path d="M21 7 L25 7 L25 9 L21 9 Z" fill="#C0C0C0"/>'+
+    '<g stroke="#808080" stroke-width="0.7">'+
+    '<path d="M10 10 L19 10 M10 13 L19 13 M10 16 L19 16 M10 19 L19 19 M10 22 L16 22"/>'+
+    '</g>'+
+    '<rect x="23" y="10" width="4" height="5" fill="#F8B8B0" stroke="#000"/>'+
+    '<rect x="23" y="18" width="4" height="7" fill="#B8D8F8" stroke="#000"/>';
+  return svg(32,32,sheet);
+}
+/* 画笔 */
+function iconPaint(){
+  var pal='<rect x="4" y="16" width="16" height="11" fill="#C0C0C0" stroke="#000" rx="1"/>'+
+    '<circle cx="8" cy="20" r="2.4" fill="#E03A3A"/><circle cx="13" cy="20" r="2.4" fill="#3AA03A"/>'+
+    '<circle cx="18" cy="20" r="2.4" fill="#3A4AE0"/><circle cx="8" cy="25" r="2.4" fill="#F0E040"/>'+
+    '<circle cx="13" cy="25" r="2.4" fill="#A03AE0"/>';
+  var brush='<path d="M20 4 L26 10 L14 22 L8 22 Z" fill="#C0C0C0" stroke="#000"/>'+
+    '<path d="M6 25 L22 9 L23 10 L7 26 Z" fill="#7A3A0B"/>'+
+    '<path d="M20 4 L23 7 L8 22 Z" fill="#6B4A2B"/>';
+  return svg(32,32,pal+brush);
+}
+/* Minesweeper 地雷 */
+function iconMine(){
+  return svg(32,32,
+    '<circle cx="16" cy="15" r="8" fill="#C0C0C0" stroke="#000"/>'+
+    '<circle cx="13" cy="12" r="2.4" fill="#E03A3A"/><circle cx="19" cy="12" r="2.4" fill="#E03A3A"/>'+
+    '<circle cx="16" cy="18" r="2.4" fill="#3A3A3A"/>'+
+    '<g stroke="#000" stroke-width="1.2" stroke-linecap="round">'+
+    '<path d="M16 3 L16 7 M16 23 L16 27 M3 15 L7 15 M25 15 L29 15"/>'+
+    '</g>');
+}
+/* 纸牌 */
+function iconSolitaire(){
+  return svg(32,32,
+    '<rect x="6" y="3" width="14" height="19" rx="2" fill="#E03A3A" stroke="#000"/>'+
+    '<rect x="14" y="9" width="14" height="19" rx="2" fill="#FFFFFF" stroke="#000"/>'+
+    '<text x="17" y="23" font-size="14" fill="#E03A3A">♥</text>');
+}
+/* 探路者 (资源管理器) */
+function iconExplorer(){
+  return svg(32,32,
+    '<circle cx="15" cy="15" r="7" fill="#F2C15D" stroke="#000"/>'+
+    '<path d="M20 20 L29 29" stroke="#7A6A2B" stroke-width="3"/>'+
+    '<circle cx="13" cy="13" r="1.6" fill="#C66A1B"/>');
+}
+/* 地球 (IE) */
+function iconIE(){
+  return svg(32,32,
+    '<circle cx="16" cy="16" r="12" fill="#3A7AE0" stroke="#000"/>'+
+    '<g stroke="#2055A0" stroke-width="0.7" fill="none">'+
+    '<ellipse cx="16" cy="16" rx="5" ry="12"/><ellipse cx="16" cy="16" rx="12" ry="5"/>'+
+    '<path d="M4 16 L28 16 M16 4 L16 28"/>'+
+    '<ellipse cx="16" cy="16" rx="8" ry="11"/>'+
+    '</g>'+
+    '<path d="M9 13 Q16 4 23 13 Z" fill="#7FB8FF" opacity="0.6"/>');
+}
+/* 我的文档 */
+function iconDocs(){
+  var sheet='<rect x="7" y="3" width="17" height="25" rx="1.5" fill="#7A5A96" stroke="#000"/>'+
+    '<g fill="#fff">'+
+    '<text x="10" y="14" font-size="7" font-family="MS Sans Serif">F</text>'+
+    '<text x="17" y="14" font-size="7" font-family="MS Sans Serif">.</text>'+
+    '<text x="20" y="14" font-size="7" font-family="MS Sans Serif">X</text>'+
+    '<text x="10" y="21" font-size="7" font-family="MS Sans Serif">W</text>'+
+    '<text x="17" y="21" font-size="7" font-family="MS Sans Serif">9</text>'+
+    '<text x="20" y="21" font-size="7" font-family="MS Sans Serif">9</text>'+
+    '</g>'+
+    '<rect x="10" y="6" width="11" height="2" fill="#fff" opacity="0.6"/>';
+  return svg(32,32,sheet);
+}
+/* 网上邻居 */
+function iconNet(){
+  return svg(32,32,
+    '<circle cx="16" cy="16" r="12" fill="#3A7AE0" stroke="#000"/>'+
+    '<ellipse cx="16" cy="16" rx="12" ry="5" fill="none" stroke="#9FC8FF" stroke-width="1"/>'+
+    '<g stroke="#2055A0" stroke-width="0.8" fill="none">'+
+    '<ellipse cx="16" cy="16" rx="5" ry="12" transform="rotate(15 16 16)"/>'+
+    '</g>'+
+    '<path d="M12 12 L20 12 L20 20 L12 20 Z" fill="#8Fc8A0"/>');
+}
+/* 控制面板 */
+function iconControl(){
+  return svg(32,32,
+    '<circle cx="16" cy="16" r="11" fill="#C0C0C0" stroke="#000"/>'+
+    '<g stroke="#000" stroke-width="1.4">'+
+    '<path d="M16 5 L16 9 M16 23 L16 27 M5 16 L9 16 M23 16 L27 16"/>'+
+    '<path d="M7 7 L10 10 M22 22 L25 25"/>'+
+    '</g>'+
+    '<circle cx="16" cy="16" r="3" fill="#E03A3A"/>');
+}
+/* 关机的红色圆钮 (power) */
+function iconShutdownBig(){
+  return svg(32,32,
+    '<circle cx="16" cy="16" r="13" fill="#E03A3A" stroke="#7A1010"/>'+
+    '<path d="M16 8 L16 15" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>'+
+    '<path d="M10.5 11 A 8 8 0 1 0 21.5 11" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>');
+}
+/* 惊叹号/问号系统图标 */
+function iconInfo(){
+  return svg(32,32,
+    '<circle cx="16" cy="16" r="12" fill="#fff" stroke="#000"/>'+
+    '<path d="M6 12 Q16 4 26 12" fill="#F0E040" stroke="#000" stroke-width="0.6"/>'+
+    '<path d="M8 6 L24 6 A6 6 0 0 1 24 16 L8 16 A6 6 0 0 1 8 6 Z" fill="#F0E040" stroke="#000" stroke-width="0.6"/>'+
+    '<text x="16" y="11" font-size="8" font-weight="bold" text-anchor="middle" fill="#000">i</text>'+
+    '<rect x="13" y="19" width="6" height="11" fill="#F0E040" stroke="#000" stroke-width="0.6"/>');
+}
+/* 问号对话框图标 */
+function iconQuestion(){
+  return svg(32,32,
+    '<circle cx="16" cy="16" r="12" fill="#fff" stroke="#000"/>'+
+    '<circle cx="16" cy="16" r="9.5" fill="#fff" stroke="#000" stroke-width="0.4"/>'+
+    '<text x="16" y="23" font-size="15" font-weight="bold" text-anchor="middle" fill="#3A6AE0">?</text>');
+}
+/* 红叉 (错误) */
+function iconError(){
+  return svg(32,32,
+    '<circle cx="16" cy="16" r="12" fill="#E03A3A" stroke="#7A1010"/>'+
+    '<circle cx="16" cy="16" r="12" fill="none" stroke="#7A1010" stroke-width="0.4"/>'+
+    '<g stroke="#fff" stroke-width="2.6" stroke-linecap="round">'+
+    '<path d="M10 10 L22 22 M22 10 L10 22"/></g>');
+}
+/* 黄色警告三角 */
+function iconWarn(){
+  return svg(32,32,
+    '<path d="M16 4 L30 27 L2 27 Z" fill="#F0E040" stroke="#000"/>'+
+    '<rect x="14.5" y="12" width="3" height="8" fill="#000"/>'+
+    '<circle cx="16" cy="24" r="1.6" fill="#000"/>');
+}
+/* 软盘保存 */
+function iconFloppy(){
+  return svg(32,32,
+    '<rect x="5" y="4" width="22" height="24" fill="#C0C0C0" stroke="#000" rx="1"/>'+
+    '<rect x="6" y="15" width="14" height="13" fill="#fff" stroke="#000"/>'+
+    '<rect x="20" y="5" width="6" height="8" fill="#E0E0E0" stroke="#000"/>'+
+    '<rect x="8" y="17" width="10" height="9" fill="#C0C0C0" stroke="#000" stroke-width="0.4"/>'+
+    '<path d="M6 15 L8 8 L18 8 L20 15" fill="#D8D8D8" stroke="#000" stroke-width="0.5" opacity="0.5"/>');
+}
+/* 打开/文件夹 */
+var ICON = {
+  mycomputer: iconMonitor('#B7E4F5','#87CEEB',true),
+  recycle:     iconBin(false),
+  deflects:    iconBin(false),
+  docs:        iconDocs(),
+  net:         iconNet(),
+  control:     iconControl(),
+  msdos:       iconMonitor('#C0C0C0','#000',true),
+  notepad:     iconNotepad(),
+  calc:        iconCalc(),
+  paint:       iconPaint(),
+  mine:        iconMine(),
+  solitaire:   iconSolitaire(),
+  explorer:    iconExplorer(),
+  ie:          iconIE(),
+  folder:      iconFolder(true),
+  floppy:      iconFloppy(),
+  info:        iconInfo(),
+  question:    iconQuestion(),
+  warn:        iconWarn(),
+  error:       iconError(),
+  shutdown:    iconShutdownBig()
+};
+
+
+/* ==== SOURCE: parts/02-core.js ==== */
+/* ============================================================
+   W95 CORE - 窗口管理 / 任务栏 / 开始菜单 / 消息框 / 图标/开机
+   ============================================================ */
+"use strict";
+var $ = function(s, c){ return (c||document).querySelector(s); };
+var $$ = function(s, c){ return Array.prototype.slice.call((c||document).querySelectorAll(s)); };
+function el(id){ return document.getElementById(id); }
+
+/* ------------- 全局状态 ------------- */
+var W95 = {
+  z: 100,
+  wins: [],          // 打开的窗口 {el, app, id, ...}
+  focused: null,
+  apps: {},          // 已注册应用构造器
+  startOpen: false,
+  clockTimer: null,
+  booted: false,
+  shutdownType: null
+};
+
+/* ------------- 声音 (WebAudio 合成 95 风格提示音) ------------- */
+var AudioSys = (function(){
+  var ctx=null, enabled=true;
+  function ac(){
+    if(!ctx){ try{ ctx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+    return ctx;
+  }
+  function tone(freq,dur,vol,type,when){
+    var c=ac(); if(!c||!enabled) return;
+    var t=(when||0); var o=c.createOscillator(), g=c.createGain();
+    o.type=type||'square'; o.frequency.value=freq;
+    g.gain.setValueAtTime(vol||0.08,c.currentTime+t);
+    g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+t+dur);
+    o.connect(g); g.connect(c.destination);
+    o.start(c.currentTime+t); o.stop(c.currentTime+t+dur+0.02);
+  }
+  return {
+    on:function(){ enabled=true; ac(); },
+    off:function(){ enabled=false; },
+    isOn:function(){ return enabled; },
+    start:function(){ tone(392,0.12,0.09,'triangle'); tone(659,0.18,0.08,'triangle',0.12); },
+    shutdown:function(){ tone(659,0.12,0.08,'triangle'); tone(392,0.2,0.07,'triangle',0.12); },
+    ding:function(){ tone(880,0.5,0.06,'sine'); tone(660,0.5,0.05,'sine',0.05); },
+    notify:function(){ tone(1200,0.09,0.06,'square'); tone(900,0.09,0.06,'square',0.1); },
+    err:function(){ tone(240,0.35,0.09,'sawtooth'); }
+  };
+})();
+
+/* ------------- 定时器 / 帮助的图标显示 ------------- */
+function iconTag(k){ return '<img class="ic" style="width:16px;height:16px" src="'+ICON[k]+'">'; }
+
+/* ------------- 时间 ------------- */
+function pad(n){ return (n<10?'0':'')+n; }
+function tickClock(){
+  var d=new Date();
+  $('#clock').textContent = pad(d.getHours())+':'+pad(d.getMinutes())+' '+pad(d.getDate())+'日';
+  $('#clock').setAttribute('title', d.toLocaleString());
+}
+
+/* ------------- 打开窗口 ------------- */
+/* app 传入 {title, icon, menu[bool], build(win, body), init(win), status, onResize, minW, minH, w, h} */
+function openApp(appId, opts){
+  opts = opts||{};
+  var app = W95.apps[appId];
+  if(!app){ err('程序未找到: '+appId); return; }
+  var w = document.createElement('div');
+  w.className='window';
+  w.id='win-'+appId;
+  var title = opts.title || app.title || appId;
+  var icon = (opts.icon||app.icon||'mycomputer');
+
+  w.innerHTML =
+    '<div class="wtitlebar">'+
+      '<div class="title"><img class="tic" src="'+ICON[icon]+'"><span>'+title+'</span></div>'+
+      '<button class="wtbtn" data-act="min">─</button>'+
+      '<button class="wtbtn" data-act="max">▢</button>'+
+      '<button class="wtbtn" data-act="close">✕</button>'+
+    '</div>'+
+    (app.menu?'<div class="wmenu"></div>':'')+
+    '<div class="wbody"></div>'+
+    '<div class="resizer"></div>';
+
+  w.header=$('.wtitlebar',w);
+  w.menuEl=app.menu?$('.wmenu',w):null;
+  w.body=$('.wbody',w);
+
+  w.style.zIndex=++W95.z;
+  var vw=document.body.clientWidth-40, vh=document.body.clientHeight-70;
+  var iw=Math.min(opts.w||app.w||480, vw), ih=Math.min(opts.h||app.h||360, vh);
+  var ix=opts.x!=null?opts.x:(vw-iw)/2 + (W95.wins.length*20 % 60);
+  var iy=opts.y!=null?opts.y:(vh-ih)/2 - 20 + (W95.wins.length*14 % 50);
+  w.style.left=Math.max(2,ix)+'px'; w.style.top=Math.max(2,iy)+'px';
+  w.style.width=iw+'px'; w.style.height=ih+'px';
+  w.app=app; w.appId=appId;
+
+  // 窗口菜单栏
+  if(app.menu){
+    (app.menus||[]).forEach(function(m){
+      var s=document.createElement('span'); s.textContent=m.label;
+      s.addEventListener('click',function(e){
+        e.stopPropagation();
+        var mm=m.items||[];
+        showAppMenu(s, mm, w);
+      });
+      w.menuEl.appendChild(s);
+    });
+  }
+
+  // 事件
+  w.addEventListener('mousedown', function(){ focusWin(w); });
+  // 标题栏拖动
+  w.header.addEventListener('mousedown', function(e){
+    if(e.target.closest('.wtbtn')) return;
+    if(w.classList.contains('maximized')) return;
+    startDrag(e,w,'move');
+  });
+  // 按钮
+  $$('.wtbtn',w).forEach(function(b){
+    b.addEventListener('click',function(e){
+      e.stopPropagation();
+      var a=b.getAttribute('data-act');
+      if(a==='close') closeWin(w);
+      else if(a==='min') minimizeWin(w);
+      else if(a==='max') { w.dragged&&0; toggleMax(w); }
+    });
+  });
+  // 双击标题栏最大化
+  w.header.addEventListener('dblclick',function(e){ if(!e.target.closest('.wtbtn')) toggleMax(w); });
+  // 缩放
+  var rz=$('.resizer',w);
+  rz.addEventListener('mousedown',function(e){ e.stopPropagation(); startDrag(e,w,'resize'); });
+
+  // 构建内容
+  if(app.build) app.build(w, w.body);
+  $('#desktop').appendChild(w);
+
+  W95.wins.push(w);
+  buildTaskbar();
+  focusWin(w);
+  if(app.init) app.init(w);
+  return w;
+}
+function focusWin(w){
+  W95.wins.forEach(function(x){ x.classList.add('inactive'); });
+  w.classList.remove('inactive');
+  w.style.zIndex=++W95.z;
+  W95.focused=w;
+  buildTaskbar();
+}
+function closeWin(w){
+  var i=W95.wins.indexOf(w);
+  if(i>=0) W95.wins.splice(i,1);
+  if(w.app&&w.app.close) w.app.close(w);
+  w.remove();
+  if(W95.wins.length) focusWin(W95.wins[W95.wins.length-1]);
+  buildTaskbar();
+}
+function minimizeWin(w){
+  w.dataset.min='1';
+  w.classList.add('minimized');
+  w.style.display='none';
+  buildTaskbar();
+}
+function restoreWin(w){
+  delete w.dataset.min;
+  w.classList.remove('minimized');
+  w.style.display='';
+  focusWin(w);
+}
+function toggleMax(w){ w.classList.toggle('maximized'); buildTaskbar(); }
+
+/* 拖动/缩放 */
+function startDrag(e,w,mode){
+  e.preventDefault();
+  var startX=e.clientX, startY=e.clientY;
+  var oL=parseInt(w.style.left), oT=parseInt(w.style.top);
+  var oW=w.offsetWidth, oH=w.offsetHeight;
+  focusWin(w);
+  var move=function(ev){
+    var dx=ev.clientX-startX, dy=ev.clientY-startY;
+    if(mode==='move'){
+      w.style.left=(oL+dx)+'px'; w.style.top=(oT+dy)+'px';
+    }else{
+      w.style.width=Math.max(w.app.minW||180,oW+dx)+'px';
+      w.style.height=Math.max(w.app.minH||120,oH+dy)+'px';
+      if(w.app.onResize) w.app.onResize(w);
+    }
+  };
+  var up=function(){ document.removeEventListener('mousemove',move); document.removeEventListener('mouseup',up); };
+  document.addEventListener('mousemove',move);
+  document.addEventListener('mouseup',up);
+}
+
+/* ------------- 任务栏 ------------- */
+function buildTaskbar(){
+  var tb=$('#taskButtons'); tb.innerHTML='';
+  W95.wins.forEach(function(w){
+    var b=document.createElement('div');
+    b.className='taskbtn';
+    if(!w.dataset.min) b.classList.add('active');
+    var app=w.app;
+    b.innerHTML='<img class="tic" src="'+ICON[app.icon||'mycomputer']+'"><span>'+($('.title span',w).textContent)+'</span>';
+    b.addEventListener('click',function(){
+      if(w.dataset.min) restoreWin(w);
+      else minimizeWin(w);
+    });
+    tb.appendChild(b);
+  });
+}
+
+/* ------------- 菜单系统 (HTML 冒泡) ------------- */
+var M = { el:null, parent:null, ownerWin:null };
+document.addEventListener('mousedown',function(e){
+  closeAllMenus();
+  if(!e.target.closest('#startBtn')) closeStartMenu();
+});
+function closeAllMenus(){ $$('.submenu').forEach(function(m){ m.remove(); }); M.el=null; }
+var popupStack=[];
+function showAppMenu(anchor, items, win){
+  closeAllMenus(); popupStack=[];
+  M.ownerWin=win;
+  var holder=win?win._menuLayer||win : document.body;
+  openPop(items, anchor.getBoundingClientRect().left, anchor.getBoundingClientRect().bottom, holder, win);
+}
+function openPop(items, x, y, holder, win){
+  var m=document.createElement('div');
+  m.className='submenu';
+  buildMenuItems(m, items, win);
+  (win&&win._menuLayer?win._menuLayer:document.body).appendChild(m);
+  m.style.left=x+'px'; m.style.top=y+'px';
+  // 保持屏幕内
+  var rect=m.getBoundingClientRect();
+  if(rect.right>window.innerWidth) m.style.left=(window.innerWidth-rect.width)+'px';
+  if(rect.bottom>window.innerHeight) m.style.top=(window.innerHeight-rect.height)+'px';
+  m.classList.add('open');
+  popupStack.push(m);
+  return m;
+}
+function buildMenuItems(m, items, win){
+  items.forEach(function(it){
+    if(it.sep){ var s=document.createElement('div'); s.className='sm-sep'; m.appendChild(s); return; }
+    var d=document.createElement('div');
+    d.className='sm-item';
+    d.innerHTML=(it.icon?('<img class="ic" src="'+ICON[it.icon]+'">'):'<span class="ic" style="width:26px"></span>')+
+      '<span>'+(it.label||'')+'</span>'+((it.sub)?'<span class="arrow" style="margin-left:auto">▶</span>':'');
+    d.addEventListener('mouseenter',function(){ $$('.sm-item',m).forEach(function(x){x.classList.remove('open');}); this.classList.add('open'); });
+    if(it.sub){
+      d.addEventListener('mouseenter',function(){
+        closePopupsBelow(d);
+        var r=d.getBoundingClientRect();
+        var sub=openPop(it.sub, r.right-2, r.top-2, m.parentNode===document.body?null:null, win);
+      });
+      d.addEventListener('click',function(e){ e.stopPropagation(); });
+    }else if(it.click){
+      d.addEventListener('click',function(e){ e.stopPropagation(); closeAllMenus(); it.click(); });
+    }
+    m.appendChild(d);
+  });
+}
+function closePopupsBelow(anchor){
+  // 简化：关闭所有已开子菜单
+  popupStack.slice(1).forEach(function(p){ p.remove(); });
+  popupStack=[popupStack[0]];
+}
+
+/* ------------- 开始菜单 ------------- */
+function buildStartMenu(){
+  var sm=$('#smBody'); sm.innerHTML='';
+  function item(label, icon, fn, sub){
+    return {label:label, icon:icon, click:fn, sub:sub};
+  }
+  var prog=[
+    item('记事本','notepad',function(){openApp('notepad');}),
+    item('画图','paint',function(){openApp('paint');}),
+    item('计算器','calc',function(){openApp('calc');}),
+    item('扫雷','mine',function(){openApp('mine');}),
+    item('纸牌','solitaire',function(){openApp('solitaire');}),
+    {sep:true},
+    item('MS-DOS 方式','msdos',function(){openApp('msdos');}),
+    item('Windows 资源管理器','explorer',function(){openApp('explorer');}),
+  ];
+  var acc=[
+    item('记事本','notepad',function(){openApp('notepad');}),
+    item('画图','paint',function(){openApp('paint');}),
+    item('计算器','calc',function(){openApp('calc');}),
+    {sep:true},
+    item('MS-DOS 方式','msdos',function(){openApp('msdos');}),
+  ];
+  var games=[
+    item('扫雷','mine',function(){openApp('mine');}),
+    item('纸牌','solitaire',function(){openApp('solitaire');}),
+  ];
+  var menu=[
+    item('程序','folder',null,[
+      item('附件','folder',null,acc),
+      item('游戏','folder',null,games),
+      item('启动','folder',null,[]),
+      {sep:true},
+      item('MS-DOS 方式','msdos',function(){openApp('msdos');}),
+      item('Windows 资源管理器','explorer',function(){openApp('explorer');}),
+    ]),
+    item('文档','docs',function(){msg('我的文档','还没有最近的文档。',T.info);}),
+    item('设置','control',null,[
+      item('控制面板','control',function(){openApp('control');}),
+      item('打印机','deflects',function(){msg('打印机','未安装打印机。',T.info);}),
+      {sep:true},
+      item('任务栏…','control',function(){openApp('taskbarSettings');}),
+    ]),
+    item('查找','explorer',null,[
+      item('文件或文件夹…','explorer',function(){openApp('find');}),
+      item('计算机…','net',function(){msg('查找计算机','在网络上找不到可用的计算机。',T.info);}),
+    ]),
+    item('帮助','info',function(){openHelp();}),
+    {sep:true},
+    item('运行…','explorer',function(){openRun();}),
+    {sep:true},
+    item('关闭系统…','shutdown',function(){doShutdown();}),
+  ];
+  menu.forEach(function(it){
+    if(it.sep){ var s=document.createElement('div'); s.className='sm-sep'; sm.appendChild(s); return; }
+    var d=document.createElement('div');
+    d.className='sm-item';
+    d.innerHTML='<img class="ic" src="'+ICON[it.icon]+'"><span>'+(it.label||'')+'</span>'+(it.sub?'<span class="arrow" style="margin-left:auto">▶</span>':'');
+    d.addEventListener('mouseenter',function(){
+      $$('.sm-item',sm).forEach(function(x){x.classList.remove('hover'); x.classList.remove('open'); this.classList.remove('hover');});
+      this.classList.add('hover'); this.classList.add('open');
+      // 关闭级联
+      closeAllMenus();
+      if(it.sub){
+        var m=openPop(it.sub, $('#startMenu').getBoundingClientRect().right-4, d.getBoundingClientRect().top, null, null);
+        wrapSubmenu(m,it.sub);
+      }
+    });
+    d.addEventListener('mousedown',function(e){ e.stopPropagation(); });
+    if(it.click) d.addEventListener('click',function(e){ e.stopPropagation(); closeStartMenu(); it.click(); });
+    sm.appendChild(d);
+  });
+}
+function wrapSubmenu(m, items){
+  // 让子菜单项悬停也能再展开（start menu 级联的第二级）
+  $$('.sm-item',m).forEach(function(d){
+    d.addEventListener('mouseenter',function(){
+      closeAllMenus();
+    });
+  });
+}
+function toggleStartMenu(){
+  if(W95.startOpen){ closeStartMenu(); return; }
+  buildStartMenu();
+  $('#startMenu').classList.add('open');
+  $('#startBtn').classList.add('open');
+  W95.startOpen=true;
+  if(AudioSys.isOn()) audioClick();
+}
+function closeStartMenu(){
+  $('#startMenu').classList.remove('open');
+  $('#startBtn').classList.remove('open');
+  W95.startOpen=false;
+  closeAllMenus();
+}
+
+/* ------------- 消息框/对话框 ------------- */
+function msg(title, text, type, buttons, callback){
+  var types={1:'error',2:'warn',3:'info',4:'question'};
+  var ic = type===T.error?ICON.error : type===T.warn?ICON.warn : type===T.question?ICON.question : ICON.info;
+  $('#msgbox').classList.remove('hide');
+  $('#mbTitle').textContent=title;
+  $('#mbIc').src=ic; $('#mbIc').style.display='';
+  $('#mbText').textContent=text;
+  var btns=$('#mbBtns'); btns.innerHTML='';
+  var defs=buttons||[{label:'确定',def:true}];
+  var focusBtn=null;
+  defs.forEach(function(b){
+    var bt=document.createElement('button'); bt.className='btn'; bt.textContent=b.label;
+    if(b.def) focusBtn=bt;
+    bt.addEventListener('click',function(){ $('#msgbox').classList.add('hide'); closeAllMenus(); if(callback) callback(b.value||b.label); });
+    btns.appendChild(bt);
+  });
+  $('#overlay').classList.add('on');
+  if(focusBtn) focusBtn.focus();
+  if(type===T.error) AudioSys.err(); else if(type===T.warn) AudioSys.notify();
+}
+function audioClick(){ try{ AudioSys.ding(); }catch(e){} }
+function err(text){ msg('错误', text, T.error); }
+
+/* ------------- 桌面图标区 ------------- */
+function buildDesktopIcons(){
+  var icons=[
+    {label:'我的电脑', icon:'mycomputer', dbl:function(){ openApp('mycomputer'); }},
+    {label:'我的文档', icon:'docs', dbl:function(){ openApp('explorer'); }},
+    {label:'网上邻居', icon:'net', dbl:function(){ msg('网上邻居','无法连接到网络。',T.err); }},
+    {label:'回收站', icon:'recycle', dbl:function(){ openApp('recycle'); }},
+  ];
+  var box=$('#icons'); box.innerHTML='';
+  icons.forEach(function(o){
+    var d=document.createElement('div');
+    d.className='desktop-icon';
+    d.innerHTML='<img class="ic" src="'+ICON[o.icon]+'"><div class="lbl">'+o.label+'</div>';
+    d.addEventListener('click',function(){
+      $$('.desktop-icon').forEach(function(x){x.classList.remove('selected');});
+      d.classList.add('selected');
+    });
+    d.addEventListener('dblclick',function(){ o.dbl(); });
+    box.appendChild(d);
+  });
+}
+
+
+/* ==== SOURCE: parts/03-apps-simple.js ==== */
+/* ============================================================
+   W95 APPS - 记事本 / 计算器 / 画图 / 资源管理器 / 我的电脑 / 回收站
+   ============================================================ */
+"use strict";
+/* ---------------- 记事本 ---------------- */
+function aboutNotepad(){ msg('关于 记事本','Windows 95 记事本\n版本 4.0 - AI 复刻演示', T.info); }
+W95.apps.notepad={
+  title:'记事本 - 无标题', icon:'notepad', menu:true, minW:260, minH:160, w:460, h:330,
+  menus:[
+    {label:'文件(F)', items:[
+      {label:'新建(N)', click:function(){}},
+      {label:'打开(O)…', click:function(){ findOpener('notepad'); }},
+      {sep:true},
+      {label:'保存(S)', click:function(){ findOpener('notepad'); }},
+      {sep:true},
+      {label:'退出(X)', click:function(){ getWin('notepad')&&closeWinById('notepad'); }},
+    ]},
+    {label:'编辑(E)', items:[
+      {label:'撤销(U)', click:function(){}},
+      {sep:true},
+      {label:'剪切(T)', click:function(){}},
+      {label:'复制(C)', click:function(){}},
+      {label:'粘贴(P)', click:function(){}},
+      {label:'删除(L)', click:function(){}},
+      {sep:true},
+      {label:'全选(A)', click:function(){}},
+    ]},
+    {label:'搜索(S)', items:[
+      {label:'查找(F)…', click:function(){}},
+      {label:'查找下一个(N)', click:function(){}},
+    ]},
+    {label:'帮助(H)', items:[
+      {label:'关于记事本(A)', click:aboutNotepad},
+    ]},
+  ],
+  build:function(win,body){
+    var ta=document.createElement('textarea');
+    ta.style.width='100%'; ta.style.height='100%';
+    ta.style.border='1px solid #808080'; ta.style.padding='4px';
+    ta.style.fontFamily="'Fixedsys','Courier New',monospace"; ta.style.fontSize='13px';
+    ta.spellcheck=false;
+    ta.value='欢迎使用 Windows 95 记事本！\r\n\r\n这是一个模拟的 Windows 95 操作系统。\r\n您可以像真实系统一样打开、关闭窗口，\r\n拖拽、缩放，使用开始菜单等。\r\n\r\n';
+    ta.addEventListener('input',function(){ updateTitle(win,'记事本 - 无标题'); });
+    body.appendChild(ta);
+    // 状态栏
+    var sb=document.createElement('div'); sb.className='statusbar';
+    sb.innerHTML='<div style="width:60px">第 1 行</div><div style="flex:1"></div>';
+    body.parentNode.insertBefore(sb, null);
+    win.body.parentNode.style.overflow='hidden';
+  }
+};
+function updateTitle(win,t){ var s=$('.title span',win); if(s) s.textContent=t; }
+
+function getWin(id){ for(var i=0;i<W95.wins.length;i++) if(W95.wins[i].appId===id) return W95.wins[i]; return null; }
+function closeWinById(id){ var w=getWin(id); if(w) closeWin(w); }
+
+/* ---------------- 计算器 ---------------- */
+W95.apps.calc={
+  title:'计算器', icon:'calc', minW:200,minH:200,w:250,h:300, menu:true,
+  menus:[
+    {label:'编辑(E)', items:[{label:'复制(C)',click:function(){}},{label:'粘贴(P)',click:function(){}}]},
+    {label:'查看(V)', items:[{label:'标准型(T)',click:function(){}},{label:'科学型(S)',click:function(){}}]},
+    {label:'帮助(H)', items:[{label:'关于计算器(A)',click:function(){msg('关于计算器','Windows 95 计算器',T.info);}}]},
+  ],
+  build:function(win,body){
+    body.style.cssText='display:flex;flex-direction:column;gap:6px;padding:8px;';
+    var disp=document.createElement('input'); disp.type='text'; disp.readOnly=true;
+    disp.style.cssText='text-align:right;font-size:16px;height:30px;';
+    disp.value='0';
+    var pad=document.createElement('div');
+    pad.style.cssText='display:flex;flex-direction:column;gap:5px;';
+    var rows=[['C','CE','←','÷'],['7','8','9','×'],['4','5','6','−'],['1','2','3','+'],['±','0','.','=']];
+    var state={acc:0,op:null, fresh:true};
+    rows.forEach(function(r){
+      var row=document.createElement('div'); row.style.cssText='display:flex;gap:5px;';
+      r.forEach(function(k){
+        var b=document.createElement('button'); b.className='btn'; b.textContent=k;
+        b.style.cssText='flex:1;';
+        b.addEventListener('click',function(){ calcKey(k,disp,state); });
+        row.appendChild(b);
+      });
+      pad.appendChild(row);
+    });
+    body.appendChild(disp); body.appendChild(pad);
+    body.style.cursor='default';
+  }
+};
+function calcKey(k,disp,st){
+  function set(v){ disp.value=(''+v).slice(0,15); }
+  if(/[0-9]/.test(k)){ if(st.fresh){ set(k); st.fresh=false; } else { var cur=disp.value; if(cur==='0'){set(k);} else set(cur+k);} return; }
+  if(k==='.'){ if(st.fresh){ set('0.'); st.fresh=false; } else if(disp.value.indexOf('.')<0){ set(disp.value+'.'); } return; }
+  if(k==='C'){ st.acc=0; st.op=null; st.fresh=true; set(0); return; }
+  if(k==='CE'){ set(0); st.fresh=true; return; }
+  if(k==='←'){ var v=disp.value; set(v.length>1?v.slice(0,-1):'0'); return; }
+  if(k==='±'){ set(parseFloat(disp.value)*-1); return; }
+  if(k==='='){
+    if(st.op){ var b=parseFloat(disp.value); var r=calcOp(st.acc,b,st.op); set(r); st.acc=r; st.op=null; st.fresh=true; }
+    return;
+  }
+  // 运算
+  if(st.op && !st.fresh){ var b=parseFloat(disp.value); var r=calcOp(st.acc,b,st.op); set(r); st.acc=r; }
+  else { st.acc=parseFloat(disp.value); }
+  st.op={'÷':'/','×':'*','−':'-','+':'+'}[k];
+  st.fresh=true;
+}
+function calcOp(a,b,o){ try{ var r=eval(a+o+b); if(!isFinite(r)){ return '除以零'; } return r; }catch(e){ return '错误'; } }
+
+/* ---------------- 画图 ---------------- */
+W95.apps.paint={
+  title:'画图 - 未命名', icon:'paint', menu:true, minW:300,minH:220,w:560,h:400,
+  menus:[
+    {label:'文件(F)', items:[
+      {label:'新建(N)',click:function(){}},
+      {label:'保存(S)',click:function(){ findOpener('paint'); }},
+      {sep:true},{label:'退出(X)',click:function(){closeWinById('paint');}},
+    ]},
+    {label:'帮助(H)', items:[{label:'关于画图(A)',click:function(){msg('关于画图','Windows 95 画图',T.info);}}]},
+  ],
+  build:function(win,body){
+    var wrap=document.createElement('div');
+    wrap.style.cssText='display:flex;flex-direction:column;height:100%;';
+    var add=document.createElement('canvas');
+    add.width=260; add.height=180;
+    add.style.cssText='background:#fff;border:1px solid #808080;margin:2px;';
+    add.style.cursor='crosshair';
+    var ctx=add.getContext('2d');
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,add.width,add.height);
+    var cx=document.createElement('div');
+    cx.style.cssText='display:flex;flex-direction:column;gap:4px;padding:4px;border-right:1px solid #808080;';
+    var cols=['#000','#808080','#800000','#808000','#008000','#008080','#000080','#800080','#808040','#004040','#0080FF','#004080','#8000FF','#804000','#00FFFF'];
+    cols.forEach(function(c){
+      var sw=document.createElement('div');
+      sw.style.cssText='width:16px;height:16px;background:'+c+';border:1px solid #fff;outline:1px solid #000;';
+      sw.addEventListener('click',function(){ win._color=c; });
+      sw.style.cursor='pointer';
+      cx.appendChild(sw);
+    });
+    var toolrow=document.createElement('div');
+    toolrow.style.cssText='display:flex;gap:2px;align-items:center;padding:2px;';
+    var tools=['✏️','🖌️','🖍️','🧹'];
+    tools.forEach(function(t,d){
+      var b=document.createElement('button'); b.className='btn'; b.style.cssText='font-size:13px;padding:2px 8px;';
+      b.textContent=t;
+      b.addEventListener('click',function(){ win._tool=d; });
+      toolrow.appendChild(b);
+    });
+    var drawing=false,last=null;
+    add.addEventListener('mousedown',function(e){
+      drawing=true; var p=getPos(e); last=p;
+      ctx.strokeStyle=win._color||'#000'; ctx.lineWidth=2; ctx.lineCap='round';
+      var r=add.getBoundingClientRect();
+      ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p.x+0.1,p.y+0.1); ctx.stroke();
+    });
+    add.addEventListener('mousemove',function(e){
+      if(!drawing) return;
+      var p=getPos(e);
+      ctx.strokeStyle=win._color||'#000'; ctx.lineWidth=2; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke();
+      last=p;
+    });
+    document.addEventListener('mouseup',function(){ drawing=false; });
+    function getPos(e){ var r=add.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
+    var area=document.createElement('div');
+    area.style.cssText='flex:1;display:flex;align-items:flex-start;padding:4px;overflow:auto;';
+    area.appendChild(add);
+    wrap.appendChild(toolrow);
+    var lower=document.createElement('div');
+    lower.style.cssText='display:flex;height:180px;';
+    lower.appendChild(cx); lower.appendChild(area);
+    wrap.appendChild(lower);
+    body.appendChild(wrap);
+  }
+};
+
+
+/* ==== SOURCE: parts/04-games.js ==== */
+/* ============================================================
+   W95 GAMES - 扫雷 / 纸牌
+   ============================================================ */
+"use strict";
+/* ---------------- 扫雷 ---------------- */
+W95.apps.mine={
+  title:'扫雷', icon:'mine', minW:220,minH:260,w:250,h:300,
+  build:function(win,body){
+    var R=9,C=9,MN=10;
+    var grid=[], revealed=0, over=false, flagCount=0, first=true;
+    var timer=0, timeInt=null;
+    var face='🙂';
+    body.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px;background:#C0C0C0;';
+
+    var top=document.createElement('div');
+    top.style.cssText='display:flex;justify-content:space-between;align-items:center;width:100%;max-width:220px;padding:2px 4px;border:1px solid;border-color:#fff #808080 #808080 #fff;';
+    var mineL=document.createElement('span');
+    mineL.style.cssText='background:#000;color:#E03A3A;font-family:Fixedsys,monospace;font-size:13px;padding:1px 4px;';
+    var faceB=document.createElement('button'); faceB.className='btn'; faceB.style.cssText='font-size:14px;padding:1px 8px;'; faceB.textContent='🙂';
+    var timeL=document.createElement('span');
+    timeL.style.cssText='background:#000;color:#E03A3A;font-family:Fixedsys,monospace;font-size:13px;padding:1px 4px;';
+    top.appendChild(mineL); top.appendChild(faceB); top.appendChild(timeL);
+
+    var board=document.createElement('div');
+    board.style.cssText='display:grid;gap:0;border:1px solid;border-color:#808080 #fff #fff #808080;padding:1px;background:#C0C0C0;';
+    function updateLEd(){ mineL.textContent=('000'+Math.max(0,MN-flagCount)).slice(-3); }
+    function updateT(){ timeL.textContent=('000'+Math.min(999,timer)).slice(-3); }
+    function reset(){
+      grid=[]; revealed=0; over=false; flagCount=0; first=true; timer=0;
+      makeGrid();
+      revGrid();
+      updateLEd(); updateT(); faceB.textContent='🙂';
+      if(timeInt) clearInterval(timeInt); timeInt=null;
+    }
+    function makeGrid(){
+      grid=[];
+      for(var r=0;r<R;r++){ grid[r]=[]; for(var c=0;c<C;c++) grid[r][c]={m:false,f:false,o:false,n:0}; }
+    }
+    function plantMines(sr,sc){
+      var spots=[];
+      for(var r=0;r<R;r++) for(var c=0;c<C;c++){ if(Math.abs(r-sr)<=1&&Math.abs(c-sc)<=1) continue; spots.push([r,c]); }
+      // 洗牌
+      for(var i=spots.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=spots[i]; spots[i]=spots[j]; spots[j]=t; }
+      for(var k=0;k<Math.min(MN,spots.length);k++){ var p=spots[k]; grid[p[0]][p[1]].m=true; }
+      // 计算邻居
+      for(r=0;r<R;r++)for(c=0;c<C;c++){ var n=0; eachN(r,c,function(nr,nc){ if(grid[nr][nc].m)n++; }); grid[r][c].n=n; }
+    }
+    function eachN(r,c,fn){ for(var dr=-1;dr<=1;dr++)for(var dc=-1;dc<=1;dc++){ if(!dr&&!dc)continue; var nr=r+dr,nc=c+dc; if(nr>=0&&nr<R&&nc>=0&&nc<C) fn(nr,nc);} }
+    function cellHtml(cell){
+      if(cell.o){
+        if(cell.m) return '<span style="font-size:12px;color:#000">💣</span>';
+        var colors=['#0000FF','#008000','#E03A3A','#000080','#800000','#008080','#000','#808080'];
+        return cell.n>0?'<span style="font-size:12px;font-weight:bold;color:'+colors[cell.n-1]+'">'+cell.n+'</span>':'';
+      }
+      if(cell.f) return '<span style="font-size:12px;color:#E03A3A">🚩</span>';
+      return '';
+    }
+    function revGrid(){
+      board.innerHTML='';
+      board.style.gridTemplateColumns='repeat('+C+',24px)';
+      for(var r=0;r<R;r++)for(var c=0;c<C;c++){
+        (function(rr,cc){
+          var d=document.createElement('div');
+          d.style.cssText='width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;';
+          var refresh=function(){ d.style.background=grid[rr][cc].o?'#C0C0C0':'#B0B0B0'; d.innerHTML=cellHtml(grid[rr][cc]);
+            if(grid[rr][cc].o){ d.style.border='1px solid #808080'; d.style.boxShadow='inset 0 0 0'; } else { d.style.border='1px solid'; d.style.borderColor='#fff #808080 #808080 #fff'; } };
+          d.addEventListener('mousedown',function(e){
+            if(over) return;
+            if(e.button===0 && !grid[rr][cc].o && !grid[rr][cc].f){ faceB.textContent='😮'; }
+            if(e.button===2 && !grid[rr][cc].o){ grid[rr][cc].f=!grid[rr][cc].f; flagCount=grid.flat().filter(function(x){return x.f;}).length; updateLEd(); refresh(); }
+          });
+          d.addEventListener('mouseup',function(e){ faceB.textContent='🙂'; });
+          d.addEventListener('click',function(){ if(over)return; openCell(rr,cc); refreshAll(); reviewWin(); });
+          d.addEventListener('contextmenu',function(e){ e.preventDefault(); });
+          function refreshAll(){ revGrid(); }
+          refresh();
+          board.appendChild(d);
+          grid[rr][cc].el=d;
+        })(r,c);
+      }
+    }
+    function openCell(r,c){
+      if(grid[r][c].o||grid[r][c].f) return;
+      if(first){ makeGrid(); plantMines(r,c); first=false; timeInt=setInterval(function(){ timer++; updateT(); if(timer>=999)clearInterval(timeInt); },1000); }
+      var cell=grid[r][c];
+      cell.o=true; revealed++;
+      if(cell.m){ cell.o=true; lose(); return; }
+      if(cell.n===0){ eachN(r,c,function(nr,nc){ if(!grid[nr][nc].m) openCell(nr,nc); }); }
+    }
+    function lose(){ over=true; clearInterval(timeInt); faceB.textContent='😵'; msg('扫雷','你踩到地雷了！游戏结束。',T.warn); }
+    function reviewWin(){
+      if(over)return;
+      var safe=R*C-MN;
+      if(revealed>=safe){ over=true; clearInterval(timeInt); faceB.textContent='😎'; msg('扫雷','恭喜！你赢了！用时 '+timer+' 秒。',T.info); }
+    }
+    refresh=function(){ revGrid(); };
+    reset();
+    faceB.addEventListener('click',reset);
+    body.appendChild(top); body.appendChild(board);
+    body.addEventListener('contextmenu',function(e){e.preventDefault();});
+  }
+};
+
+/* ---------------- 纸牌 (简化) ---------------- */
+W95.apps.solitaire={
+  title:'纸牌', icon:'solitaire', minW:300,minH:300,w:620,h:420,
+  build:function(win,body){
+    body.style.cssText='padding:8px;background:#008080;';
+    var deck=[], pile=[], col=[[],[],[],[],[],[],[]], found=[[],[],[],[]];
+    var stock=[], waste=[];
+    var suits=['♠','♥','♦','♣'], reds={'♥':1,'♦':1};
+    function newDeck(){ deck=[]; for(var s=0;s<4;s++)for(var v=1;v<=13;v++) deck.push({s:suits[s],v:v}); shuffle(); }
+    function shuffle(){ for(var i=deck.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=deck[i];deck[i]=deck[j];deck[j]=t; } deal(); }
+    var dealt=false;
+    function deal(){
+      if(!dealt){ for(i=0;i<7;i++) for(j=0;j<=i;j++) col[i].push(deck.pop()); dealt=true; }
+    }
+    var bodyEl=body;
+    function render(canvas){
+      newDeck();
+      var d=document.createElement('div');
+      d.style.cssText='width:1200px;height:760px;position:relative;transform-origin:top left;transform:scale(calcX);';
+      function card(c,x,y,face,interactive){
+        var el=document.createElement('div');
+        el.style.cssText='position:absolute;left:'+x+'px;top:'+y+'px;width:58px;height:80px;';
+        if(face){
+          el.style.cssText+='background:#fff;border:1px solid #000;border-radius:3px;';
+          el.innerHTML='<div style="padding:3px;font-size:11px;color:'+(reds[c.s]?'#E03A3A':'#000')+'"><b style="font-size:13px">'+c.v+'</b><br>'+c.s+'</div>';
+        }else{
+          el.style.cssText+='background:repeating-linear-gradient(45deg,#1a5a8a,#1a5a8a 3px,#276fa3 3px,#276fa3 6px);border:1px solid #000;border-radius:3px;';
+        }
+        return el;
+      }
+      var x0=20,y0=20;
+      // 左上牌堆
+      /* 简化为显示四列纸牌 + 堆 */
+      bodyEl.innerHTML='<div style="line-height:1.5">纸牌 (简化版)</div><div style="margin-top:6px;font-size:11px;color:#fff">左上为发牌堆，这里我们简化处理，仅展示牌面。</div>';
+    }
+    body.style.overflow='auto';
+    // 简化版：显示一副展开的牌
+    msg('纸牌','简化版纸牌：\n\n这里只展示界面框架。\n（完整玩法可后续扩展）',T.info);
+  }
+};
+
+
+/* ==== SOURCE: parts/05-sysapps.js ==== */
+/* ============================================================
+   W95 SYSTEM APPS - 我的电脑 / 回收站 / 控制面板 / 任务栏设置 / 查找 / 运行 / 帮助
+   ============================================================ */
+"use strict";
+/* 通用导航窗口构建器（左右双栏资源管理器样式） */
+function explorerWindow(opts){
+  // opts: {title, icon, items:[{label,icon,type,children,dbl}]}
+  var app={
+    title:opts.title, icon:opts.icon, minW:280,minH:200,w:opts.w||560,h:opts.h||380, menu:true,
+    menus:opts.menus||[
+      {label:'文件(F)', items:[{label:'关闭(C)',click:function(){closeWinById(opts.id);}}]},
+      {label:'查看(V)', items:[{label:'大图标(G)',click:function(){}},{label:'小图标(S)',click:function(){}},{label:'列表(L)',click:function(){}},{label:'详细资料(D)',click:function(){}}]},
+      {label:'帮助(H)', items:[{label:'关于',click:function(){msg('关于','Windows 95 资源管理器风格',T.info);}}]},
+    ],
+    build:function(win,body){
+      body.style.cssText='display:flex;';
+      var left=document.createElement('div');
+      left.style.cssText='width:150px;border-right:1px solid #808080;background:#fff;overflow:auto;padding:4px;height:100%;';
+      var tree=[
+        {l:'桌面',i:'mycomputer'},
+        {l:'我的电脑',i:'mycomputer',ch:[
+          {l:'A盘',i:'floppy'},{l:'C盘',i:'mycomputer'},{l:'D盘',i:'mycomputer'},{l:'控制面板',i:'control'}
+        ]},
+        {l:'我的文档',i:'docs'},
+        {l:'网上邻居',i:'net'},
+        {l:'回收站',i:'recycle'},
+      ];
+      function renderTree(items, lvl){
+        items.forEach(function(it){
+          var d=document.createElement('div');
+          d.style.cssText='padding:2px 4px;padding-left:'+(6+lvl*16)+'px;display:flex;align-items:center;gap:4px;white-space:nowrap;';
+          d.innerHTML='<img style="width:16px;height:16px" src="'+ICON[it.i]+'"><span>'+it.l+'</span>';
+          d.addEventListener('click',function(){
+            $$('.treenode',left).forEach(function(x){x.style.background='';});
+            d.style.background='#000080'; d.style.color='#fff';
+            refreshRight(it);
+          });
+          d.className='treenode';
+          left.appendChild(d);
+          if(it.ch) renderTree(it.ch,lvl+1);
+        });
+      }
+      renderTree(tree,0);
+      var right=document.createElement('div');
+      right.style.cssText='flex:1;overflow:auto;padding:6px;background:#fff;';
+      function refreshRight(node){
+        right.innerHTML='';
+        var h=document.createElement('div');
+        h.style.cssText='font-size:12px;font-weight:bold;margin-bottom:6px;';
+        h.textContent=node.l+':';
+        right.appendChild(h);
+        var grid=document.createElement('div');
+        grid.style.cssText='display:flex;flex-wrap:wrap;gap:8px;';
+        (node.ch||[]).forEach(function(it){
+          var d=document.createElement('div');
+          d.style.cssText='width:70px;text-align:center;padding:4px;';
+          d.innerHTML='<img style="width:32px;height:32px" src="'+ICON[it.i]+'"><div>'+it.l+'</div>';
+          d.addEventListener('dblclick',function(){ if(it.dbl) it.dbl(); });
+          grid.appendChild(d);
+        });
+        right.appendChild(grid);
+      }
+      body.appendChild(left); body.appendChild(right);
+      win._right=right;
+    }
+  };
+  app.id=opts.id; app.opts=opts;
+  return app;
+}
+
+/* ---------------- 我的电脑 ---------------- */
+W95.apps.mycomputer=explorerWindow({
+  id:'mycomputer', title:'我的电脑', icon:'mycomputer', w:560,h:400,
+  items:[
+    {label:'A盘',icon:'floppy'},
+    {label:'C盘',icon:'mycomputer'},
+    {label:'D盘',icon:'mycomputer'},
+    {label:'控制面板',icon:'control', dbl:function(){openApp('control');}},
+    {label:'打印机',icon:'deflects'},
+  ]
+});
+
+/* ---------------- 回收站 ---------------- */
+W95.apps.recycle=function(){};
+(function(){
+  var app=explorerWindow({
+    id:'recycle', title:'回收站', icon:'recycle', w:430,h:320,
+    items:[]
+  });
+  app.build=function(win,body){
+    body.innerHTML='<div style="padding:10px;font-size:11px;line-height:1.6">回收站为空。<br><br>被删除的项目会放在这里。您可以在关闭或重新启动计算机之前还原或永久删除它们。</div>';
+  };
+  W95.apps.recycle=app;
+})();
+
+/* ---------------- 控制面板 ---------------- */
+W95.apps.control=function(){};
+(function(){
+  var cps=[
+    {l:'显示器',i:'control',fn:function(){openApp('display');}},
+    {l:'声音',i:'control',fn:function(){openApp('soundSettings');}},
+    {l:'日期/时间',i:'control',fn:function(){openApp('datetime');}},
+    {l:'鼠标',i:'control',fn:function(){msg('鼠标','这里可以调整鼠标设置。\n(模拟界面)',T.info);}},
+    {l:'键盘',i:'control',fn:function(){msg('键盘','这里可以调整键盘设置。\n(模拟界面)',T.info);}},
+    {l:'添加/删除程序',i:'control',fn:function(){openApp('addremove');}},
+    {l:'字体',i:'control',fn:function(){msg('字体','已安装字体：Arial, Times New Roman 等。',T.info);}},
+    {l:'网络',i:'net',fn:function(){msg('网络','无法检测到网络适配器。',T.info);}},
+    {l:'系统',i:'mycomputer',fn:function(){openApp('systemProps');}},
+  ];
+  W95.apps.control=explorerWindow({
+    id:'control', title:'控制面板', icon:'control', w:520,h:360,
+    items:[]
+  });
+  W95.apps.control.build=function(win,body){
+    body.style.padding='10px';
+    body.innerHTML='<div style="font-size:11px;margin-bottom:6px">控制面板 — 调整计算机的系统设置。</div>';
+    var grid=document.createElement('div');
+    grid.style.cssText='display:flex;flex-wrap:wrap;gap:10px;';
+    cps.forEach(function(c){
+      var d=document.createElement('div');
+      d.style.cssText='width:82px;text-align:center;padding:4px;cursor:default;';
+      d.innerHTML='<img style="width:32px;height:32px" src="'+ICON[c.i]+'"><div>'+c.l+'</div>';
+      d.addEventListener('dblclick',c.fn);
+      grid.appendChild(d);
+    });
+    body.appendChild(grid);
+  };
+})();
+
+/* ---------------- 显示器设置 ---------------- */
+W95.apps.display={
+  title:'显示器 属性', icon:'control', minW:340,minH:280,w:440,h:400,
+  build:function(win,body){
+    body.style.padding='12px';
+    body.innerHTML=
+      '<div style="font-size:12px;font-weight:bold;margin-bottom:8px">显示器</div>'+
+      '<div style="line-height:2;font-size:11px">'+
+      '&nbsp;背景图案: <select class="field"><option>（无）</option><option>砖墙</option><option>波浪</option><option>棋盘</option></select><br>'+
+      '&nbsp;背景颜色: <select class="field" id=dispBg><option>青色</option><option>蓝色</option><option>黑色</option><option>紫红色</option></select><br>'+
+      '&nbsp;屏幕保护程序: <select class="field"><option>（无）</option><option>多彩曲线</option><option>飞行窗口</option></select><br>'+
+      '&nbsp;等待(N): <input type="text" class="field" value="15" style="width:34px"> 分钟</div>'+
+      '<div style="margin-top:10px">'+
+      '<div style="font-size:11px;margin-bottom:4px">桌面预览:</div>'+
+      '<div id=dispPrev style="width:100%;height:130px;border:1px solid #808080;position:relative;overflow:hidden"></div></div>'+
+      '<div style="margin-top:10px;display:flex;gap:6px">'+
+      '<button class="btn" id=dispOk>确定</button><button class="btn" id=dispCancel>取消</button></div>';
+    var prev=$('#dispPrev',body), bgSel=$('#dispBg',body);
+    function updateBg(){
+      var map={'青色':'#008080','蓝色':'#000080','黑色':'#000000','紫红色':'#800080'};
+      prev.style.background=map[bgSel.value]||'#008080';
+    }
+    bgSel.addEventListener('change',updateBg); updateBg();
+    $('#dispOk',body).addEventListener('click',function(){ closeWin(win); });
+    $('#dispCancel',body).addEventListener('click',function(){ closeWin(win); });
+  }
+};
+
+/* ---------------- 声音设置 ---------------- */
+W95.apps.soundSettings={
+  title:'声音 属性', icon:'control', minW:300,minH:300,w:380,h:360,
+  build:function(win,body){
+    body.innerHTML=
+    '<div style="padding:12px;line-height:2">'+
+    '<div style="font-weight:bold;margin-bottom:6px">启动声音</div>'+
+    '<label><input type="checkbox" checked onchange="window.__w95Sound=this.checked;AudioSys[this.checked?"on":"off"]()"> 使用启动/关闭声音</label>'+
+    '<div style="margin-top:12px"><button class="btn" data-c="playstart">播放启动音</button> '+
+    '<button class="btn" data-c="playshut">播放关机音</button> '+
+    '<button class="btn" data-c="playerr">播放错误音</button></div>'+
+    '</div>';
+    $$('button[data-c]',body).forEach(function(b){
+      b.addEventListener('click',function(){
+        var c=b.getAttribute('data-c');
+        if(c==='playstart') AudioSys.start();
+        else if(c==='playshut') AudioSys.shutdown();
+        else if(c==='playerr') AudioSys.err();
+      });
+    });
+    var ok=document.createElement('button'); ok.className='btn'; ok.textContent='确定';
+    ok.addEventListener('click',function(){closeWin(win);});
+    body.appendChild(ok); body.style.paddingBottom='12px';
+  }
+};
+
+/* ---------------- 日期/时间 ---------------- */
+W95.apps.datetime={
+  title:'日期/时间 属性', icon:'control', minW:300,minH:260,w:340,h:300,
+  build:function(win,body){
+    var d=new Date();
+    var months=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+    body.innerHTML='<div style="padding:12px;line-height:1.8">'+
+    '<div style="font-weight:bold">今天的日期与时间</div>'+
+    '日期：'+months[d.getMonth()]+' '+d.getDate()+'日, '+d.getFullYear()+' 年<br>'+
+    '时间：'+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())+'<br><br>'+
+    '时区：<select><option>(GMT+08:00) 北京，重庆</option></select>'+
+    '</div>';
+    var ok=document.createElement('button'); ok.className='btn'; ok.textContent='确定'; ok.style.marginLeft='12px';
+    ok.addEventListener('click',function(){closeWin(win);});
+    body.appendChild(ok);
+  }
+};
+
+/* ---------------- 添加/删除程序 ---------------- */
+W95.apps.addremove={
+  title:'添加/删除程序 属性', icon:'control', minW:320,minH:320,w:400,h:380,
+  build:function(win,body){
+    body.innerHTML='<div style="padding:12px">'+
+    '<div style="font-weight:bold;margin-bottom:8px">目前安装的程序:</div>'+
+    '<div style="border:1px solid #808080;padding:6px;height:140px;overflow:auto">'+
+    '<div>记事本</div><div>画图</div><div>计算器</div><div>扫雷</div><div>纸牌</div></div>'+
+    '<div style="margin-top:10px"><button class="btn">添加/删除(D)…</button></div>'+
+    '</div>';
+    var ok=document.createElement('button'); ok.className='btn'; ok.textContent='确定'; ok.style.marginLeft='12px';
+    ok.addEventListener('click',function(){closeWin(win);});
+    body.appendChild(ok);
+  }
+};
+
+/* ---------------- 系统属性 ---------------- */
+W95.apps.systemProps={
+  title:'系统 属性', icon:'mycomputer', minW:340,minH:300,w:420,h:360,
+  build:function(win,body){
+    body.innerHTML='<div style="padding:14px;text-align:center;line-height:1.6">'+
+    '<img style="width:40px;height:40px" src="'+ICON.mycomputer+'"><br>'+
+    '<div style="font-size:13px;font-weight:bold;margin:6px 0">Microsoft Windows 95</div>'+
+    '<div>版权所有 © 1981-1995 Microsoft Corp.</div><br>'+
+    '<div style="text-align:left;margin-top:8px">'+
+    '计算机：<br>&nbsp;&nbsp;Intel Pentium 75MHz<br>'+
+    '内存：&nbsp;&nbsp;16.0MB RAM<br>'+
+    '系统资源：92% 可用<br></div></div>';
+    var ok=document.createElement('button'); ok.className='btn'; ok.textContent='确定'; ok.style.cssText='position:absolute;right:12px;bottom:12px;';
+    ok.addEventListener('click',function(){closeWin(win);});
+    body.appendChild(ok);
+  }
+};
+
+/* ---------------- 查找文件 ---------------- */
+W95.apps.find={
+  title:'查找: 所有文件', icon:'explorer', minW:380,minH:260,w:460,h:300,
+  build:function(win,body){
+    body.innerHTML='<div style="padding:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+
+    '名称(&amp;N): <input type="text" id=findq style="width:180px" placeholder="*.txt"> '+
+    '<button class="btn" id=findgo>开始查找(F)</button><button class="btn">停止(S)</button></div>'+
+    '<div id=findres style="border:1px solid #808080;margin:0 10px;height:150px;overflow:auto;background:#fff;padding:4px"></div>';
+    var q=$('#findq',body), res=$('#findres',body);
+    $('#findgo',body).addEventListener('click',function(){
+      res.innerHTML='';
+      var pat=(q.value||'*.txt').toLowerCase();
+      var found=0;
+      [['C:\\WINDOWS\\NOTEPAD.EXE','记事本'],['C:\\WINDOWS\\PBRUSH.EXE','画图'],['C:\\WINDOWS\\CALC.EXE','计算器'],['C:\\WINDOWS\\WINMINE.EXE','扫雷'],['C:\\WINDOWS\\SOL.EXE','纸牌']].forEach(function(f){
+        if(pat==='*'||f[0].toLowerCase().indexOf(pat.replace('*.',''))>=0||pat==='*.txt'){
+          var d=document.createElement('div');
+          d.innerHTML='<img style="width:16px;height:16px;vertical-align:middle" src="'+ICON.explorer+'"> '+f[0]+' — '+f[1];
+          res.appendChild(d); found++;
+        }
+      });
+      if(!found){ var d=document.createElement('div'); d.textContent='没有找到匹配的文件。'; res.appendChild(d); }
+    });
+  }
+};
+
+/* ---------------- 运行 ---------------- */
+function openRun(){
+  var box=document.createElement('div');
+  box.style.cssText='position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);background:#C0C0C0;border:1px solid #000;outline:1px solid #fff;box-shadow:inset -1px -1px 0 #808080,inset 1px 1px 0 #fff;z-index:25000;width:360px;padding:3px;';
+  box.innerHTML='<div class="mb-title" style="height:20px;margin:-3px -3px 0;padding:0 4px;background-image:linear-gradient(90deg,#000080,#1084D0);color:#fff;font-weight:bold;line-height:20px;font-size:11px">运行</div>'+
+  '<div style="display:flex;gap:10px;padding:14px 12px 6px;align-items:center">'+
+  '<img style="width:32px;height:32px" src="'+ICON.explorer+'">'+
+  '<div><div style="padding-bottom:6px;font-size:11px">键入程序、文件夹或文档的名称，Windows 将为您打开它。</div>'+
+  '<input type="text" style="width:220px" id=runCmd placeholder="blah"></div></div>'+
+  '<div style="display:flex;justify-content:flex-end;gap:6px;padding:10px 12px 12px">'+
+  '<button class="btn" id=runOK>确定</button><button class="btn" id=runCanc>取消</button></div>';
+  document.body.appendChild(box);
+  var close=function(){ box.remove(); };
+  $('#runCanc',box).addEventListener('click',close);
+  $('#runOK',box).addEventListener('click',function(){
+    var v=($('#runCmd',box).value||'').trim().toLowerCase(); close(); runCommand(v);
+  });
+  box.addEventListener('mousedown',function(){ this.style.boxShadow='inset -1px -1px 0 #808080,inset 1px 1px 0 #fff'; });
+  $('#runCmd',box).focus();
+}
+function runCommand(v){
+  if(!v) return;
+  if(v.indexOf('calc')>=0||v==='calculator'){openApp('calc');return;}
+  if(v.indexOf('notepad')>=0){openApp('notepad');return;}
+  if(v.indexOf('pbrush')>=0||v.indexOf('mspaint')>=0){openApp('paint');return;}
+  if(v.indexOf('winmine')>=0||v==='mine'){openApp('mine');return;}
+  if(v.indexOf('sol')>=0||v==='solitaire'){openApp('solitaire');return;}
+  if(v.indexOf('explorer')>=0||v==='explorer'){openApp('explorer');return;}
+  if(v.indexOf('command')>=0||v==='ms-dos'){openApp('msdos');return;}
+  if(v.indexOf('control')>=0){openApp('control');return;}
+  if(v==='shutdown'){doShutdown();return;}
+  if(v.indexOf('.txt')>=0){openApp('notepad');return;}
+  if(v.indexOf('http')>=0){openApp('ie');return;}
+  err('无法找到要运行的程序或文档。\n\n\''+v+'\' 不是有效的命令。');
+}
+
+/* ---------------- 帮助 ---------------- */
+function openHelp(){
+  var w=openApp('notepad',{title:'帮助主题: Windows 帮助',icon:'info',w:420,h:340});
+  if(w){ var ta=$('textarea',w); if(ta) ta.value='Windows 95 帮助\n==============\n\n• 如何在桌面上打开程序？\n  双击桌面图标，或用“开始”菜单。\n\n• 如何移动窗口？\n  按住标题栏拖动。\n\n• 如何调整窗口大小？\n  拖动右下角。\n\n• 如何关机？\n  开始 → 关闭系统。\n\n本模拟器由 AI 生成，用于展示 Windows 95 的经典界�与交互。\n'; }
+}
+
+/* ---------------- 资源管理器 ---------------- */
+W95.apps.explorer=function(){};
+(function(){
+  W95.apps.explorer=explorerWindow({
+    id:'explorer', title:'Exploring - C:', icon:'explorer', w:560,h:400
+  });
+})();
+
+/* ---------------- 打印机 ---------------- */
+W95.apps.printers={
+  title:'打印机', icon:'deflects', minW:300,minH:220,w:420,h:300,
+  build:function(win,body){
+    body.innerHTML='<div style="padding:10px"><div style="font-size:12px;font-weight:bold;margin-bottom:8px">打印机</div>'+
+    '<div style="border:1px solid #808080;padding:20px;text-align:center;background:#fff">没有安装打印机。<br><br><button class="btn">添加打印机(D)…</button></div></div>';
+  }
+};
+
+
+/* ==== SOURCE: parts/06-more.js ==== */
+/* ============================================================
+   W95 MORE APPS & SYSTEM - MS-DOS / 浏览器 / 任务栏设置 / 关机 / 开机
+   ============================================================ */
+"use strict";
+/* ---------------- MS-DOS 方式 ---------------- */
+W95.apps.msdos={
+  title:'MS-DOS 方式', icon:'msdos', minW:320,minH:240,w:560,h:360,
+  build:function(win,body){
+    body.style.cssText='background:#000;padding:10px;color:#C0C0C0;font-family:Fixedsys,Consolas,monospace;font-size:14px;';
+    var line=document.createElement('div');
+    line.style.cssText='line-height:1.5;white-space:pre-wrap;';
+    line.textContent='Microsoft(R) Windows 95\n   (C)Copyright Microsoft Corp 1981-1995.\n\nC:\\WINDOWS>_';
+    body.appendChild(line);
+    body.addEventListener('click',function(){
+      msg('MS-DOS 方式','这是一个模拟的 DOS 提示符。\n\n它只是外观，不接受实际的 DOS 命令。',T.info);
+    });
+  }
+};
+
+/* ---------------- Internet Explorer ---------------- */
+W95.apps.ie={
+  title:'Welcome to the Internet', icon:'ie', menu:true, minW:360,minH:240,w:640,h:420,
+  menus:[
+    {label:'文件(F)', items:[{label:'关闭(C)',click:function(){closeWinById('ie');}}]},
+    {label:'帮助(H)', items:[{label:'关于 Internet Explorer',click:function(){msg('关于','Microsoft Internet Explorer 2.0\n(模拟版)',T.info);}}]},
+  ],
+  build:function(win,body){
+    var tb=document.createElement('div');
+    tb.style.cssText='display:flex;gap:4px;padding:3px;';
+    ['←','→','✕','🏠','🔍'].forEach(function(b,i){
+      var bt=document.createElement('button'); bt.className='btn'; bt.style.cssText='padding:2px 8px;font-size:11px;'; bt.textContent=b;
+      bt.addEventListener('click',function(){ if(i===4) msg('搜索','在这台计算机上找不到 Internet 连接。',T.warn); });
+      tb.appendChild(bt);
+    });
+    var addr=document.createElement('div');
+    addr.style.cssText='padding:3px;font-size:11px;';
+    addr.innerHTML='地址: <input type="text" style="width:80%" value="http://home.microsoft.com/">';
+    var frame=document.createElement('div');
+    frame.style.cssText='border:1px solid #808080;margin:0 4px;height:calc(100% - 50px);background:#fff;overflow:auto;padding:8px;';
+    frame.innerHTML='<center><h3 style="margin:12px 0">欢迎使用 Internet!</h3>'+
+    '<p style="margin:8px 40px;line-height:1.5">Internet Explorer 是一个用于浏览 Internet 的免费组件。<br>本处为模拟界面。</p>'+
+    '<button class="btn" style="margin-top:10px" onclick=maybeErr()>开始使用</button></center>';
+    body.appendChild(tb); body.appendChild(addr); body.appendChild(frame);
+    body.parentNode.style.overflow='hidden';
+    // expose
+    window.maybeErr=function(){ msg('Internet Explorer','无法连接到服务器。请检查网络连接。',T.warn); };
+  }
+};
+
+/* ---------------- 任务栏设置 ---------------- */
+W95.apps.taskbarSettings={
+  title:'任务栏 属性', icon:'control', minW:320,minH:300,w:380,h:340, menu:true,
+  menus:[{label:'帮助(H)', items:[{label:'关于',click:function(){msg('任务栏','Windows 95 任务栏设置',T.info);}}]}],
+  build:function(win,body){
+    var tabs=document.createElement('div');
+    tabs.style.cssText='display:flex;padding:8px 8px 0;';
+    var mk=function(l,on,i){
+      var t=document.createElement('div');
+      t.style.cssText='padding:4px 12px;border:1px solid #808080;position:relative;top:1px;font-size:11px;background:'+(on?'#C0C0C0':'#D0D0D0')+';';
+      t.textContent=l;
+      t.addEventListener('click',function(){
+        $$('.tabbtn',tabs).forEach(function(x){x.style.background='#D0D0D0';});
+        t.style.background='#C0C0C0';
+        show(i);
+      });
+      t.className='tabbtn';
+      return t;
+    };
+    var tabOptions=mk('任务栏选项',true,0), tabStart=mk('开始菜单程序',false,1);
+    tabs.appendChild(tabOptions); tabs.appendChild(tabStart);
+    var panel=document.createElement('div');
+    panel.style.cssText='border:1px solid #808080;margin:0 8px;padding:12px;height:180px;';
+    var p0, p1;
+    function show(i){
+      panel.innerHTML='';
+      if(i===0){
+        p0=document.createElement('div'); p0.innerHTML=
+        '<label style="display:block;margin:4px 0"><input type="checkbox" checked> 总在最前(T)</label>'+
+        '<label style="display:block;margin:4px 0"><input type="checkbox" checked> 自动隐藏(U)</label>'+
+        '<label style="display:block;margin:4px 0"><input type="checkbox" checked> 在“开始”菜单中显示小图标(S)</label>'+
+        '<label style="display:block;margin:4px 0"><input type="checkbox" checked> 显示时钟(C)</label>'+
+        '<div style="margin-top:10px;height:40px;width:100%;background:linear-gradient(#0000aa,#1084d0);border:1px solid #fff;position:relative">'+
+        '<div style="position:absolute;left:4px;bottom:3px;width:28px;height:12px;background:#C0C0C0;border:1px solid #fff;font-size:7px;padding:1px">开始</div></div>';
+        panel.appendChild(p0);
+      } else {
+        p1=document.createElement('div'); p1.innerHTML=
+        '<div style="font-size:11px">自定义“开始”菜单中的程序。</div>'+
+        '<div style="margin:10px 0"><button class="btn">添加(A)…</button> <button class="btn">删除(R)…</button> <button class="btn">高级(V)…</button></div>'+
+        '<div style="font-size:11px;margin-top:8px"><label style="display:block"><input type="checkbox" checked> <b>清除(C)</b> 文档菜单内容</label></div>';
+        panel.appendChild(p1);
+      }
+    }
+    show(0);
+    var btns=document.createElement('div');
+    btns.style.cssText='display:flex;justify-content:flex-end;gap:6px;padding:10px 8px;';
+    ['确定','取消','应用'].forEach(function(l){
+      var b=document.createElement('button'); b.className='btn'; b.textContent=l;
+      b.addEventListener('click',function(){ if(l==='确定') closeWin(win); });
+      btns.appendChild(b);
+    });
+    body.appendChild(tabs); body.appendChild(panel); body.appendChild(btns);
+  }
+};
+
+/* ============================================================
+   关机 / 重启 / 注销 界面
+   ============================================================ */
+/* 关机画面 */
+function doShutdown(){
+  var box=document.createElement('div');
+  box.style.cssText='position:fixed;left:50%;top:35%;transform:translate(-50%,-50%);background:#C0C0C0;border:1px solid #000;outline:1px solid #fff;box-shadow:inset -1px -1px 0 #808080,inset 1px 1px 0 #fff;z-index:26000;width:380px;padding:3px;';
+  box.innerHTML=
+  '<div style="height:20px;margin:-3px -3px 0;padding:0 4px;background-image:linear-gradient(90deg,#000080,#1084D0);color:#fff;font-weight:bold;line-height:20px;font-size:11px">关闭 Windows</div>'+
+  '<div style="display:flex;gap:12px;padding:16px 14px 8px;align-items:flex-start">'+
+  '<img style="width:32px;height:32px" src="'+ICON.shutdown+'">'+
+  '<div style="font-size:11px;line-height:1.5">确实要：<br>'+
+  '<label style="display:block;margin:6px 0"><input type="radio" name="shut" value="shutdown" checked> 关闭计算机？(S)</label>'+
+  '<label style="display:block;margin:6px 0"><input type="radio" name="shut" value="restart"> 重新启动计算机？(R)</label>'+
+  '<label style="display:block;margin:6px 0"><input type="radio" name="shut" value="msdos"> 重新启动计算机并切换到 MS-DOS 方式？(M)</label>'+
+  '<label style="display:block;margin:6px 0"><input type="radio" name="shut" value="logoff"> 关闭所有程序并作为其他用户登录？(L)</label>'+
+  '</div></div>'+
+  '<div style="display:flex;justify-content:flex-end;gap:6px;padding:10px 14px 14px">'+
+  '<button class="btn" id=shYes>是(Y)</button><button class="btn" id=shNo>否(N)</button><button class="btn" id=shHelp>帮助(H)</button></div>';
+  document.body.appendChild(box);
+  function val(){ var r=box.querySelector('input[name=shut]:checked'); return r?r.value:null; }
+  $('#shNo',box).addEventListener('click',function(){ box.remove(); });
+  $('#shHelp',box).addEventListener('click',function(){ msg('关闭 Windows','请选择一种关机方式，然后按“是”。',T.info); });
+  $('#shYes',box).addEventListener('click',function(){
+    var v=val(); box.remove(); proceedShutdown(v);
+  });
+  box.addEventListener('mousedown',function(){ W95.z++; this.style.zIndex=++W95.z; });
+}
+function proceedShutdown(v){
+  AudioSys.shutdown();
+  if(v==='logoff'){ showLoginScreen(); return; }
+  if(v==='msdos'){ msg('MS-DOS 方式','正在准备切换到 MS-DOS…\n\n(模拟) 此模式下只能运行文本程序。',T.info); return; }
+  // shutdown 或 restart -> 黑屏淡出
+  var black=document.createElement('div');
+  black.style.cssText='position:fixed;inset:0;background:#000;z-index:40000;opacity:0;transition:opacity 1.5s;';
+  document.body.appendChild(black);
+  setTimeout(function(){ black.style.opacity='1'; },50);
+  setTimeout(function(){
+    if(v==='restart'){ black.remove(); showLoginScreen(); }
+    else showShutdownScreen();
+  },1700);
+}
+/* 它现在可以安全地关闭计算机了 */
+function showShutdownScreen(){
+  var os=document.createElement('div');
+  os.style.cssText='position:fixed;inset:0;background:#000080;color:#fff;z-index:40000;display:flex;align-items:center;justify-content:center;flex-direction:column;';
+  os.innerHTML='<div style="font-size:26px;font-weight:bold;font-family:MS Sans Serif,Tahoma;text-shadow:2px 2px 0 #000">你现在可以安全地关闭计算机了。</div>'+
+    '<div style="font-size:12px;margin-top:14px;color:#aaa">(点击屏幕可重新启动)</div>';
+  document.body.appendChild(os);
+  os.addEventListener('click',function(){ os.remove(); showLoginScreen(); });
+}
+
+/* ============================================================
+   开机 BIOS / 登录 / 启动画面 流程
+   ============================================================ */
+function showLoginScreen(bootAfter){
+  var layer=document.createElement('div');
+  layer.style.cssText='position:fixed;inset:0;background:#008080;z-index:39990;display:flex;align-items:center;justify-content:center;';
+  // 模拟 Windows 95 登录对话框
+  var box=document.createElement('div');
+  box.style.cssText='background:#C0C0C0;border:1px solid #000;outline:1px solid #fff;box-shadow:inset -1px -1px 0 #808080,inset 1px 1px 0 #fff;width:340px;padding:3px;';
+  box.innerHTML=
+    '<div style="height:20px;margin:-3px -3px 0;padding:0 4px;background-image:linear-gradient(90deg,#000080,#1084D0);color:#fff;font-weight:bold;line-height:20px;font-size:11px">欢迎使用 Windows</div>'+
+    '<div style="display:flex;gap:12px;padding:14px 12px 6px;">'+
+      '<img style="width:32px;height:32px" src="'+ICON.info+'">'+
+      '<div style="font-size:11px">输入用户名和密码以登录到 Windows。<br><br>'+
+        '用户名(U): <input type="text" id=lgUser value="Student" style="width:150px"><br>'+
+        '密码(P): &nbsp;&nbsp;<input type="password" id=lgPass style="width:150px" placeholder="(任意)"></div>'+
+    '</div>'+
+    '<div style="display:flex;justify-content:flex-end;gap:6px;padding:10px 12px 12px;">'+
+      '<button class="btn" id=lgOK>确定</button><button class="btn" id=lgCancel>取消</button></div>';
+  layer.appendChild(box);
+  document.body.appendChild(layer);
+  function go(){
+    var u=$('#lgUser',box).value||'Guest';
+    var p=$('#lgPass',box).value;
+    AudioSys.start();
+    layer.style.opacity='0'; layer.style.transition='opacity 0.5s';
+    setTimeout(function(){ layer.remove(); bootLogo(); },450);
+  }
+  $('#lgCancel',box).addEventListener('click',go);
+  $('#lgOK',box).addEventListener('click',go);
+  $('#lgPass',box).addEventListener('keydown',function(e){ if(e.key==='Enter') go(); });
+  $('#lgUser',box).focus();
+}
+
+/* Win95 启动 logo */
+function bootLogo(){
+  var layer=document.createElement('div');
+  layer.style.cssText='position:fixed;inset:0;background:#000;z-index:39970;display:flex;align-items:center;justify-content:center;flex-direction:column;';
+  document.body.appendChild(layer);
+  var t=document.createElement('div');
+  t.style.cssText='color:#F3F3EF;font-size:34px;font-family:Tahoma,MS Sans Serif;font-weight:bold;letter-spacing:1px;text-shadow:2px 2px 0 #000;';
+  layer.appendChild(t);
+  var bar=document.createElement('div');
+  bar.style.cssText='margin-top:40px;width:320px;height:14px;border:2px solid #505050;display:none;position:relative;';
+  bar.innerHTML='<div style="height:100%;width:0;background:#2b7ae0;" id=bw></div>';
+  layer.appendChild(bar);
+  var tag=document.createElement('div');
+  tag.style.cssText='margin-top:8px;color:#7a7a7a;font-size:10px;';
+  layer.appendChild(tag);
+
+  var text='Microsoft Windows 95';
+  var i=0;
+  var ti=setInterval(function(){ i++; t.textContent=text.slice(0,i);
+    if(i>=text.length){ clearInterval(ti); bar.style.display=''; }
+  },45);
+  var w=0;
+  var bi=setInterval(function(){ w+=Math.random()*9+3; if(w>=100)w=100; $('#bw',layer).style.width=w+'%'; if(w>=100){clearInterval(bi); tag.textContent='正在准备桌面…';} },90);
+  setTimeout(function(){
+    layer.style.opacity='0'; layer.style.transition='opacity 0.8s';
+    setTimeout(function(){ layer.remove(); W95.booted=true; buildTaskbar(); },800);
+  }, 2600);
+}
+
+/* ============================================================
+   BOOT STRAP
+   ============================================================ */
+function init(){
+  // 时钟
+  tickClock(); setInterval(tickClock,10000);
+  // 开始按钮
+  $('#startBtn').addEventListener('click',function(e){ e.stopPropagation(); toggleStartMenu(); });
+  document.addEventListener('mousedown',function(e){
+    if(!e.target.closest('#startMenu')) closeStartMenu();
+    if(!e.target.closest('#msgbox')) {}
+  });
+  // 时钟区
+  $('#clock').addEventListener('click',function(){ openApp('datetime'); });
+  // 桌面图标
+  buildDesktopIcons();
+  // Windows 徽标 flg（用简单内联 svg）
+  makeStartFlag();
+}
+function makeStartFlag(){
+  var b=$('#startBtn .flg');
+  b.src='data:image/svg+xml;utf8,'+encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">'+
+    '<path fill="#ff2b2b" d="M0 0 H16 V16 H0 Z"/>'+
+    '<path fill="#ffb100" d="M0 7 H16 V9 H0 Z"/>'+
+    '<path fill="#00a000" d="M0 11 H16 V16 H0 Z"/>'+
+    '<path fill="#2b5aff" d="M0 2 H4 V5 H0 Z M6 2 H10 V5 H6 Z M12 2 H16 V5 H12 Z" opacity="0.8"/>'+
+    '</svg>');
+}
+
+/* 启动流程：先 BIOS+登录，再进入桌面 */
+window.onload=function(){
+  init();
+  showLoginScreen();
+};
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+/* ============================================================
+   Windows 95 模拟器 — 应用专用样式
+   ============================================================ */
+
+/* 桌面层级 */
+#desktop-icons { z-index: 1; }
+.wallpaper-canvas { z-index: 0; }
+/* 橡皮筋选择框只是视觉层，绝不能拦截鼠标事件 */
+#desktop-rubberband { pointer-events: none; }
+
+/* 任务栏自动隐藏 */
+#taskbar.taskbar-hidden {
+  transform: translateY(calc(100% - 3px));
+  transition: transform .15s ease-out;
+}
+#taskbar.taskbar-hidden:hover {
+  transform: translateY(0);
+}
+
+/* 记事本 */
+.notepad-ta { tab-size: 4; }
+.notepad-ta::selection { background: #000080; color: #fff; }
+
+/* 资源管理器 / 通用列表选中 */
+.item-sel, .tree-sel, .cpl-sel, .filedlg-sel { background: #000080; color: #fff; }
+
+/* 计算器 */
+.calc-display::selection { background: transparent; }
+
+/* 扫雷 LED 区域 */
+.led-row { display: flex; }
+
+/* 纸牌 */
+.drop-zone { background: transparent; }
+.drop-zone:hover { background: rgba(0, 255, 0, 0.12); }
+
+/* 对话框窗口内正文 */
+.dlgwin .win-body { padding: 12px; }
+.dlgwin .win-body > * { max-width: 100%; }
+
+/* 帮助内容 */
+.help-body a { color: #0000ff; text-decoration: underline; cursor: pointer; }
+
+/* 通用 label 间距 */
+.w95label { line-height: 1.5; }
+
+/* select 下拉箭头样式（保持简单） */
+select.w95input {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 18px;
+  background-image: linear-gradient(45deg, transparent 50%, #000 50%), linear-gradient(135deg, #000 50%, transparent 50%);
+  background-position: calc(100% - 12px) 55%, calc(100% - 8px) 55%;
+  background-size: 4px 4px;
+  background-repeat: no-repeat;
+}
+
+/* 待机遮罩 */
+.standby-overlay { user-select: none; }
+
+/* 屏幕保护程序全屏 */
+body.saver-active { cursor: none; }

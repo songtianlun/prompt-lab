@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows 95 模拟器</title>
+<style>
+/* ============================================================
+   WINDOWS 95 EMULATOR - 由 AI 生成的 Win95 网页模拟器
+   ============================================================ */
+:root{
+  --w95-border: #DFDFDF;      /* 高光 */
+  --w95-face:   #C0C0C0;      /* 标准钢灰 */
+  --w95-shadow: #000000;      /* 深阴影 */
+  --w95-dark:   #808080;      /* 窗口边框灰 */
+  --w95-navy:   #000080;      /* 标题栏深蓝 */
+  --w95-focus:  #1084D0;      /* 浅蓝 */
+  --w95-teal:   #008080;
+  --font-w95: 'MS Sans Serif','Tahoma','Verdana','Geneva',sans-serif;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; overflow:hidden; }
+body{
+  font-family:var(--font-w95);
+  font-size:11px;
+  color:#000;
+  cursor:default;
+  user-select:none;
+  -webkit-user-select:none;
+  background:#008080;
+}
+img{ -webkit-user-drag:none; }
+
+/* ============ DESKTOP ============ */
+#desktop{
+  position:fixed; inset:0;
+  background:#008080;
+  overflow:hidden;
+}
+#desktopWallpaper{
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at 20% 15%, #29b6c4 0%, #057a86 55%, #044e57 100%);
+}
+/* 桌面图标区 */
+#icons{
+  position:absolute; top:4px; left:4px;
+  display:flex; flex-direction:column; flex-wrap:wrap;
+  align-content:flex-start;
+  height:calc(100% - 44px);
+}
+.desktop-icon{
+  width:80px; height:80px;
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:flex-start; padding:6px 2px;
+  text-align:center; color:#fff;
+  text-shadow:1px 1px 1px #000;
+  cursor:default;
+}
+.desktop-icon .ic{
+  width:32px; height:32px; flex:0 0 auto;
+}
+.desktop-icon .lbl{
+  margin-top:4px; line-height:1.15; word-break:break-word;
+  font-size:11px;
+}
+.desktop-icon.selected .lbl{
+  background:var(--w95-navy); color:#fff;
+}
+
+/* ============ WINDOW ============ */
+.window{
+  position:absolute;
+  background:var(--w95-face);
+  border:1px solid var(--w95-shadow);
+  outline:1px solid var(--w95-dark);
+  outline-offset:0;
+  box-shadow:inset 1px 1px 0 var(--w95-border), 2px 2px 0 rgba(0,0,0,0.35);
+  min-width:180px;
+}
+.window.inactive .wtitlebar{
+  background-image:linear-gradient(90deg,#808080,#B5B5B5);
+}
+.wtitlebar{
+  height:21px;
+  background-image:linear-gradient(90deg,#000080,#1084D0);
+  display:flex; align-items:center;
+  padding:2px 2px 2px 4px;
+}
+.wtitlebar .title{
+  flex:1; color:#fff; font-weight:bold;
+  font-size:11px; white-space:nowrap; overflow:hidden;
+  display:flex; align-items:center; gap:4px;
+  text-shadow:1px 1px 0 #000;
+}
+.wtitlebar .title .tic{ width:16px;height:16px;flex:0 0 auto; }
+.wtbtn{
+  width:18px; height:18px; margin-left:2px;
+  flex:0 0 auto;
+  font-size:8px; font-weight:bold;
+}
+.wmenu{
+  display:none;
+  height:19px; border-bottom:1px solid #808080;
+  padding:1px 2px 0;
+}
+.window.withmenu .wmenu{ display:flex; align-items:stretch; }
+.wmenu span{
+  padding:1px 6px; line-height:16px; font-size:11px;
+}
+.wmenu span.active{ background:var(--w95-navy); color:#fff; }
+.wbody{
+  background:var(--w95-face);
+  border:1px solid #808080;
+  margin:2px;
+  margin-top:0;
+  position:relative;
+  overflow:hidden;
+}
+.window.maximized{
+  border:0; box-shadow:none;
+  left:0 !important; top:0 !important;
+  width:100% !important; height:100% !important;
+}
+.window.maximized .wbody{ margin:2px; }
+/* 缩放把手 */
+.resizer{
+  position:absolute; width:12px;height:12px; right:0;bottom:0;
+  cursor:se-resize;
+}
+
+/* 通用按钮（95立体积感） */
+.btn{
+  font-family:var(--font-w95); font-size:11px;
+  background:var(--w95-face);
+  color:#000;
+  border:1px solid var(--w95-dark);
+  box-shadow:inset -1px -1px 0 #000, inset 1px 1px 0 #fff;
+  padding:4px 14px;
+  cursor:default;
+  white-space:nowrap;
+}
+.btn:active{
+  box-shadow:inset -1px -1px 0 #fff, inset 1px 1px 0 #000;
+  padding:5px 13px 3px 15px;
+}
+.btn:focus{ outline:1px dotted #000; outline-offset:-5px; }
+.btn[disabled]{ color:#808080; text-shadow:1px 1px 0 #fff; }
+.btn.primary:focus{ outline:1px dotted #000; }
+
+/* 表单控件 */
+input[type=text], input[type=password], textarea, select, .field{
+  font-family:var(--font-w95); font-size:11px;
+  background:#fff;
+  border:1px solid;
+  border-color:#000 #fff #fff #000;
+  box-shadow:inset 1px 1px 0 #808080;
+  padding:2px 4px; color:#000;
+}
+textarea{ resize:none; outline:none; }
+
+/* 状态栏 */
+.statusbar{
+  height:20px; border-top:1px solid #fff;
+  background:var(--w95-face);
+  display:flex; align-items:stretch;
+  padding:2px;
+  gap:2px;
+}
+.statusbar>div{
+  border:1px solid;
+  border-color:#808080 #fff #fff #808080;
+  padding:1px 6px; line-height:14px; font-size:11px; white-space:nowrap; overflow:hidden;
+}
+
+/* ============ TASKBAR ============ */
+#taskbar{
+  position:fixed; left:0; right:0; bottom:0; height:27px;
+  z-index:9999;
+  background:var(--w95-face);
+  border-top:1px solid #fff;
+  box-shadow:inset 0 1px 0 #DFDFDF;
+  display:flex; align-items:center;
+  padding:2px;
+  gap:2px;
+}
+#startBtn{
+  height:21px; flex:0 0 auto;
+  display:flex; align-items:center; gap:3px;
+  font-weight:bold; font-size:11px;
+  padding:2px 6px;
+}
+#startBtn .flg{ width:16px;height:14px; }
+#startBtn.open{
+  box-shadow:inset -1px -1px 0 #fff, inset 1px 1px 0 #000;
+  padding:3px 5px 1px 7px;
+}
+#taskbarSep{
+  width:2px; height:21px; margin:0 2px; flex:0 0 auto;
+}
+#tray{
+  height:21px; flex:0 0 auto;
+  display:flex; align-items:center; gap:4px;
+  padding:0 5px;
+  border:1px solid;
+  border-color:#808080 #fff #fff #808080;
+}
+#clock{ font-size:11px; }
+#trayDivider{ width:2px;height:19px;background:#808080; }
+#taskButtons{
+  flex:1; display:flex; align-items:center; gap:2px; overflow:hidden;
+}
+.taskbtn{
+  height:21px; min-width:120px; max-width:160px;
+  font-size:11px;
+  display:flex; align-items:center; gap:4px;
+  padding:2px 4px; overflow:hidden;
+  background:var(--w95-face);
+  border:1px solid;
+  border-color:#fff #000 #000 #fff;
+  box-shadow:inset -1px -1px 0 #808080, inset 1px 1px 0 #DFDFDF;
+}
+.taskbtn .tic{ width:16px;height:16px;flex:0 0 auto; }
+.taskbtn span{ white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.taskbtn.active{
+  box-shadow:inset -1px -1px 0 #DFDFDF, inset 1px 1px 0 #808080;
+  border-color:#808080 #fff #fff #808080;
+  background:#d4d0c8;
+}
+
+/* ============ START MENU ============ */
+#startMenu{
+  position:fixed; left:2px; bottom:28px;
+  width:200px;
+  background:var(--w95-face);
+  border:1px solid #000;
+  outline:1px solid #DFDFDF;
+  box-shadow:inset -1px -1px 0 #808080, 2px 2px 4px rgba(0,0,0,0.4);
+  display:none;
+  z-index:10000;
+  padding:2px;
+}
+#startMenu.open{ display:block; }
+#smlogo{
+  font-family:'Wingdings','Segoe UI Symbol',symbols;
+  writing-mode:vertical-rl;
+  background-image:linear-gradient(180deg,#00006a,#1a9bd8 40%,#1a9bd8 60%,#00006a);
+  color:#fff; font-weight:bold; font-size:20px;
+  letter-spacing:2px;
+  text-align:center;
+  padding:6px 2px;
+  float:left; width:22px; height:100%;
+  border-right:1px solid #404040;
+}
+#smBody{ margin-left:24px; padding:1px; }
+.sm-item{
+  display:flex; align-items:center; gap:8px;
+  padding:4px 6px 4px 4px;
+  font-size:11px;
+}
+.sm-item .ic{ width:26px;height:26px;flex:0 0 auto; }
+.sm-item span{ white-space:nowrap; }
+.sm-item.sub > .arrow{ margin-left:auto; }
+.sm-item.hover{ background:var(--w95-navy); color:#fff; }
+.sm-sep{ height:1px; background:#808080; margin:2px 1px;
+  box-shadow:0 1px 0 #fff;
+}
+
+/* ---------- 级联子菜单 ---------- */
+.submenu{
+  position:fixed;
+  background:var(--w95-face);
+  border:1px solid #000; outline:1px solid #DFDFDF;
+  box-shadow:inset -1px -1px 0 #808080, 2px 2px 4px rgba(0,0,0,0.4);
+  display:none; z-index:10001; padding:2px; min-width:160px;
+}
+.submenu.open{ display:block; }
+.submenu .sm-item{ padding-right:12px; }
+.submenu .sm-item.open{ background:var(--w95-navy); color:#fff; }
+
+/* ============ 系统提示框 ============ */
+#msgbox{
+  position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+  background:var(--w95-face);
+  border:1px solid #000; outline:1px solid #fff;
+  box-shadow:inset -1px -1px 0 #808080, inset 1px 1px 0 #DFDFDF, 4px 4px 8px rgba(0,0,0,0.45);
+  min-width:300px; max-width:440px;
+  z-index:20000;
+  padding:3px;
+  display:none;
+}
+#msgbox .mb-title{
+  height:20px; margin:-3px -3px 0;
+  padding:0 4px;
+  background-image:linear-gradient(90deg,#000080,#1084D0);
+  color:#fff; font-weight:bold; font-size:11px;
+  line-height:20px;
+  display:flex;
+}
+#msgbox .mb-title span{ flex:1; }
+#mbBody{
+  display:flex; gap:12px; padding:16px 14px 12px;
+  align-items:flex-start;
+}
+#mbBody .mb-ic{ width:32px;height:32px;flex:0 0 auto; }
+#mbText{ line-height:1.4; padding-top:6px; }
+#mbBtns{ display:flex; justify-content:center; gap:8px; padding-bottom:10px; }
+
+/* 通用覆盖层 */
+#overlay{
+  position:fixed; inset:0; z-index:15000;
+  display:none;
+}
+#overlay.on{ display:block; }
+
+/* ============ 死机蓝屏 ============ */
+#bsod{
+  position:fixed; inset:0; z-index:30000;
+  background:#0000AA; color:#fff;
+  display:none;
+}
+#bsod.on{ display:block; }
+#bsodInner{
+  font-family:'Fixedsys','Courier New',monospace;
+  font-size:15px; line-height:1.5;
+  padding:60px 70px;
+  max-width:760px;
+}
+.bsod-blink{ animation:blink 1s steps(1) infinite; }
+@keyframes blink{ 50%{opacity:0;} }
+
+/* ============ 工具类 ============ */
+.scroll::-webkit-scrollbar{ width:16px;height:16px; }
+.scroll::-webkit-scrollbar-track{
+  background:#DFDFDF;
+  border:1px solid #808080;
+  background-image:repeating-linear-gradient(45deg,#DFDFDF,#DFDFDF 2px,#fff 2px,#fff 4px);
+}
+.scroll::-webkit-scrollbar-thumb{
+  background:var(--w95-face);
+  border:1px solid #808080;
+  box-shadow:inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+}
+.hide{ display:none !important; }
+</style>
+</head>
+<body>
+
+<!-- ============ 桌面 ============ -->
+<div id="desktop">
+  <div id="desktopWallpaper"></div>
+  <div id="icons"></div>
+</div>
+
+<!-- 任务栏 -->
+<div id="taskbar">
+  <button id="startBtn" class="btn"><img class="flg" src="" alt="">开始</button>
+  <div id="taskbarSep"></div>
+  <div id="taskButtons"></div>
+  <div id="tray">
+    <span id="trayVol">🔊</span>
+    <span id="trayLang">EN</span>
+    <div id="trayDivider"></div>
+    <span id="clock"></span>
+  </div>
+</div>
+
+<!-- 开始菜单 -->
+<div id="startMenu">
+  <div id="smlogo">Windows95</div>
+  <div id="smBody"></div>
+</div>
+
+<!-- 消息框 -->
+<div id="overlay"></div>
+<div id="msgbox" class="hide">
+  <div class="mb-title"><span id="mbTitle"></span></div>
+  <div id="mbBody"><img id="mbIc" class="mb-ic" src=""><div id="mbText"></div></div>
+  <div id="mbBtns"></div>
+</div>
+
+<!-- 蓝屏 -->
+<div id="bsod"><div id="bsodInner"></div></div>
+
+
+</body>
+</html>

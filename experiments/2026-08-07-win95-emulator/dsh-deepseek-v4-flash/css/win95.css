@@ -1,0 +1,551 @@
+/* ============================================================
+   Windows 95 网页模拟器 — 核心样式
+   ============================================================ */
+
+@font-face {
+  font-family: "Pixelated MS Sans Serif";
+  src: url("https://unpkg.com/98.css@0.1.20/dist/ms_sans_serif.woff2") format("woff2"),
+       url("https://unpkg.com/98.css@0.1.20/dist/ms_sans_serif.woff") format("woff");
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pixelated MS Sans Serif";
+  src: url("https://unpkg.com/98.css@0.1.20/dist/ms_sans_serif_bold.woff2") format("woff2"),
+       url("https://unpkg.com/98.css@0.1.20/dist/ms_sans_serif_bold.woff") format("woff");
+  font-weight: bold;
+  font-display: swap;
+}
+
+:root {
+  --w95-face: #c0c0c0;
+  --w95-face-light: #dfdfdf;
+  --w95-face-dark: #808080;
+  --w95-face-black: #0a0a0a;
+  --w95-shadow: #404040;
+  --w95-title-active1: #000080;
+  --w95-title-active2: #1084d0;
+  --w95-title-inactive1: #808080;
+  --w95-title-inactive2: #b5b5b5;
+  --w95-title-text: #ffffff;
+  --w95-desktop: #008080;
+  --w95-desktop-text: #ffffff;
+  --w95-hover: #000080;
+  --w95-hover-text: #ffffff;
+  --w95-font: "Pixelated MS Sans Serif", "MS Sans Serif", "Tahoma", "Microsoft YaHei", sans-serif;
+  --w95-font-size: 11px;
+  --w95-dialog-font-size: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: var(--w95-font);
+  font-size: var(--w95-font-size);
+  background: #000;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hidden { display: none !important; }
+
+img, svg { -webkit-user-drag: none; }
+
+/* ============================================================
+   BOOT SCREEN
+   ============================================================ */
+#boot-screen {
+  position: fixed; inset: 0; z-index: 9000;
+  background: #000;
+  color: #fff;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 18px;
+  cursor: pointer;
+}
+.boot-logo { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.boot-flag { animation: bootFloat 1.1s ease-in-out infinite; filter: drop-shadow(0 0 12px rgba(255,255,255,.25)); }
+@keyframes bootFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.boot-text { font-size: 64px; font-weight: bold; letter-spacing: -1px; }
+.boot-windows { color: #fff; }
+.boot-num { color: #f0a000; }
+.boot-progress {
+  width: 340px; height: 16px;
+  border: 2px solid #fff;
+  padding: 1px;
+  background: #000;
+  overflow: hidden;
+}
+.boot-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: repeating-linear-gradient(90deg, #0000c0 0 14px, #1084d0 14px 28px);
+  animation: bootProgress 5.5s linear forwards;
+}
+@keyframes bootProgress { to { width: 100%; } }
+.boot-hint {
+  position: absolute; bottom: 22px;
+  color: #808080; font-size: 12px;
+}
+
+/* ============================================================
+   SAFE / DOS SCREENS
+   ============================================================ */
+#safe-screen, #dos-screen {
+  position: fixed; inset: 0; z-index: 9500;
+  background: #000; color: #fff;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.safe-text {
+  font-size: 30px; text-align: center; line-height: 1.5;
+  text-shadow: 0 1px 0 #808080;
+}
+.safe-hint { position: absolute; bottom: 24px; color: #404040; font-size: 13px; }
+.dos-cursor-line {
+  font-family: "Courier New", monospace;
+  font-size: 16px; color: #c0c0c0;
+}
+.dos-cursor-block {
+  display: inline-block; width: 10px; height: 17px;
+  background: #c0c0c0; vertical-align: bottom;
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ============================================================
+   DESKTOP
+   ============================================================ */
+#desktop {
+  position: fixed; inset: 0;
+  background: var(--w95-desktop);
+  overflow: hidden;
+  z-index: 0;
+}
+#desktop-icons {
+  position: absolute; inset: 0;
+}
+.desk-icon {
+  position: absolute;
+  width: 76px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 2px;
+  padding: 4px 2px;
+  text-align: center;
+  z-index: 1;
+  cursor: default;
+}
+.desk-icon .icon-img { width: 32px; height: 32px; pointer-events: none; }
+.desk-icon .icon-label {
+  color: var(--w95-desktop-text);
+  font-size: 11px;
+  line-height: 1.2;
+  text-shadow: 1px 1px 1px #000;
+  padding: 1px 2px;
+  word-break: break-all;
+  max-height: 30px; overflow: hidden;
+}
+.desk-icon.selected .icon-label {
+  background: #000080;
+  color: #fff;
+  text-shadow: none;
+}
+.desk-icon.selected .icon-img { filter: drop-shadow(2px 2px 1px #000); }
+.desk-icon.dragging { opacity: .85; z-index: 5; }
+#desktop-rubberband {
+  position: absolute; z-index: 10;
+  border: 1px dotted #ffff00;
+  background: rgba(0,128,128,.25);
+}
+
+/* ============================================================
+   WINDOWS
+   ============================================================ */
+.w95win {
+  position: absolute;
+  background: var(--w95-face);
+  box-shadow:
+    inset -1px -1px 0 var(--w95-face-black),
+    inset 1px 1px 0 var(--w95-face-light),
+    inset -2px -2px 0 var(--w95-shadow),
+    inset 2px 2px 0 #fff,
+    2px 2px 4px rgba(0,0,0,.4);
+  padding: 3px;
+  display: flex; flex-direction: column;
+  min-width: 120px; min-height: 70px;
+  z-index: 100;
+}
+.w95win.focused { z-index: 300; }
+.w95win.maximized {
+  box-shadow: none;
+  padding: 2px;
+}
+.w95win.maximized .win-body { border: 0; }
+
+.win-titlebar {
+  height: 18px;
+  display: flex; align-items: center;
+  padding: 2px 2px 2px 3px;
+  gap: 4px;
+  flex: 0 0 auto;
+  background: linear-gradient(90deg, var(--w95-title-active1), var(--w95-title-active2));
+  color: var(--w95-title-text);
+  font-weight: bold;
+  font-size: 11px;
+  letter-spacing: .2px;
+  white-space: nowrap;
+}
+.w95win:not(.focused) .win-titlebar {
+  background: linear-gradient(90deg, var(--w95-title-inactive1), var(--w95-title-inactive2));
+  color: #d4d4d4;
+}
+.win-title-icon { width: 16px; height: 16px; flex: 0 0 auto; }
+.win-title-text {
+  flex: 1 1 auto;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.win-title-btn {
+  width: 16px; height: 14px;
+  background: var(--w95-face);
+  box-shadow: inset -1px -1px 0 var(--w95-face-black), inset 1px 1px 0 #fff, inset -2px -2px 0 var(--w95-shadow), inset 2px 2px 0 var(--w95-face-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: bold; color: #000;
+  flex: 0 0 auto;
+}
+.win-title-btn:active { box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 var(--w95-face-black); }
+.win-title-btn .tb-glyph {
+  width: 8px; height: 7px;
+  display: block;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 var(--w95-face-black), inset 0 0 0 1px #000;
+  background: var(--w95-face);
+}
+.win-title-btn .tb-glyph.tb-close {
+  background: none; box-shadow: none;
+  font-size: 10px; line-height: 10px; font-weight: bold;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.win-menubar {
+  flex: 0 0 auto;
+  display: flex;
+  background: var(--w95-face);
+  padding: 1px 0;
+}
+.win-menubar-item {
+  padding: 1px 7px;
+  font-size: 11px;
+}
+.win-menubar-item.active, .win-menubar-item:hover { background: var(--w95-hover); color: var(--w95-hover-text); }
+
+.win-body {
+  flex: 1 1 auto;
+  border: 1px solid;
+  border-color: var(--w95-face-dark) #fff #fff var(--w95-face-dark);
+  background: var(--w95-face);
+  overflow: auto;
+  position: relative;
+  display: flex; flex-direction: column;
+}
+.win-statusbar {
+  flex: 0 0 auto;
+  display: flex;
+  margin-top: 2px;
+  border: 1px solid;
+  border-color: var(--w95-face-dark) #fff #fff var(--w95-face-dark);
+  background: var(--w95-face);
+  font-size: 11px;
+}
+.win-statusbar .sb-grip {
+  width: 14px; flex: 0 0 auto;
+  background:
+    linear-gradient(135deg, var(--w95-face) 0 33%, #fff 33% 66%, var(--w95-face) 66% 100%);
+  background-size: 4px 4px;
+  border-left: 1px solid var(--w95-face-dark);
+}
+.win-statusbar .sb-field {
+  padding: 2px 6px;
+  border-right: 1px solid var(--w95-face-dark);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.win-statusbar .sb-field + .sb-field { border-left: 1px solid #fff; }
+
+/* resize handles */
+.win-resize-n, .win-resize-s, .win-resize-e, .win-resize-w,
+.win-resize-ne, .win-resize-nw, .win-resize-se, .win-resize-sw {
+  position: absolute; z-index: 40;
+}
+.win-resize-n { top: -2px; left: 6px; right: 6px; height: 5px; cursor: ns-resize; }
+.win-resize-s { bottom: -2px; left: 6px; right: 6px; height: 5px; cursor: ns-resize; }
+.win-resize-e { right: -2px; top: 6px; bottom: 6px; width: 5px; cursor: ew-resize; }
+.win-resize-w { left: -2px; top: 6px; bottom: 6px; width: 5px; cursor: ew-resize; }
+.win-resize-ne { top: -2px; right: -2px; width: 9px; height: 9px; cursor: nesw-resize; }
+.win-resize-nw { top: -2px; left: -2px; width: 9px; height: 9px; cursor: nwse-resize; }
+.win-resize-se { bottom: -2px; right: -2px; width: 9px; height: 9px; cursor: nwse-resize; }
+.win-resize-sw { bottom: -2px; left: -2px; width: 9px; height: 9px; cursor: nesw-resize; }
+
+/* ============================================================
+   TASKBAR
+   ============================================================ */
+#taskbar {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  height: 30px;
+  background: var(--w95-face);
+  border-top: 1px solid #fff;
+  box-shadow: 0 -1px 0 var(--w95-face-dark);
+  display: flex;
+  align-items: stretch;
+  z-index: 2000;
+  padding: 2px;
+  gap: 3px;
+}
+#start-button {
+  display: flex; align-items: center; gap: 3px;
+  font-family: var(--w95-font);
+  font-weight: bold; font-size: 11px;
+  padding: 2px 6px 2px 3px;
+  background: var(--w95-face);
+  box-shadow: inset -1px -1px 0 var(--w95-face-black), inset 1px 1px 0 #fff, inset -2px -2px 0 var(--w95-shadow), inset 2px 2px 0 var(--w95-face-light);
+  border: 0; outline: none;
+  flex: 0 0 auto;
+}
+#start-button:active, #start-button.open { box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 var(--w95-face-black); }
+#start-button .start-flag { display: inline-flex; }
+#taskbar-buttons {
+  flex: 1 1 auto;
+  display: flex;
+  gap: 3px;
+  overflow: hidden;
+}
+.task-button {
+  flex: 0 1 160px;
+  min-width: 40px;
+  display: flex; align-items: center; gap: 4px;
+  background: var(--w95-face);
+  box-shadow: inset -1px -1px 0 var(--w95-face-black), inset 1px 1px 0 #fff, inset -2px -2px 0 var(--w95-shadow), inset 2px 2px 0 var(--w95-face-light);
+  padding: 2px 6px;
+  font-family: var(--w95-font); font-size: 11px;
+  overflow: hidden; white-space: nowrap;
+}
+.task-button .tb-icon { width: 16px; height: 16px; flex: 0 0 auto; }
+.task-button .tb-label { overflow: hidden; text-overflow: ellipsis; }
+.task-button.active {
+  box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 var(--w95-face-black);
+  background: var(--w95-face);
+}
+#taskbar-tray {
+  flex: 0 0 auto;
+  display: flex; align-items: center;
+  box-shadow: inset 1px 1px 0 var(--w95-face-dark);
+  background: var(--w95-face);
+  padding: 0 4px;
+}
+#tray-clock { font-size: 11px; padding: 2px 4px; }
+
+/* ============================================================
+   START MENU
+   ============================================================ */
+#start-menu {
+  position: fixed;
+  left: 2px; bottom: 30px;
+  z-index: 2500;
+  background: var(--w95-face);
+  box-shadow: inset -1px -1px 0 var(--w95-face-black), inset 1px 1px 0 #fff, inset -2px -2px 0 var(--w95-shadow), inset 2px 2px 0 var(--w95-face-light), 3px 3px 6px rgba(0,0,0,.4);
+  padding: 2px;
+}
+.startmenu-body { display: flex; }
+.startmenu-side {
+  width: 26px;
+  background: linear-gradient(180deg, #000080, #1084d0);
+  margin-right: 2px;
+  position: relative;
+  overflow: hidden;
+}
+.startmenu-side-text {
+  position: absolute;
+  top: 14px; left: 50%;
+  transform: translateX(-50%) rotate(-90deg);
+  transform-origin: center;
+  color: #fff;
+  font-weight: bold;
+  font-size: 15px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  text-shadow: 1px 1px 2px rgba(0,0,0,.6);
+}
+.startmenu-items { padding: 2px; min-width: 176px; }
+.startmenu-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 22px 5px 6px;
+  position: relative;
+  white-space: nowrap;
+}
+.startmenu-item .sm-icon { width: 24px; height: 24px; flex: 0 0 auto; }
+.startmenu-item .sm-icon svg { width: 24px; height: 24px; }
+.startmenu-item .sm-arrow {
+  position: absolute; right: 8px; font-size: 8px; color: #000;
+}
+.startmenu-item.hover, .startmenu-item:hover {
+  background: var(--w95-hover); color: var(--w95-hover-text);
+  outline: 1px dotted #fff; outline-offset: -1px;
+}
+.startmenu-item.hover .sm-arrow { color: #fff; }
+.startmenu-sep {
+  margin: 3px 2px;
+  border-top: 1px solid var(--w95-face-dark);
+  border-bottom: 1px solid #fff;
+}
+
+/* ============================================================
+   POPUP MENUS (cascading / context)
+   ============================================================ */
+.w95menu {
+  position: fixed; z-index: 3000;
+  background: var(--w95-face);
+  box-shadow: inset -1px -1px 0 var(--w95-face-black), inset 1px 1px 0 #fff, inset -2px -2px 0 var(--w95-shadow), inset 2px 2px 0 var(--w95-face-light), 3px 3px 6px rgba(0,0,0,.35);
+  padding: 2px;
+  min-width: 150px;
+}
+.w95menu-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 18px 4px 6px;
+  position: relative; white-space: nowrap;
+}
+.w95menu-item .mi-icon { width: 16px; height: 16px; flex: 0 0 auto; display: flex; }
+.w95menu-item .mi-icon svg { width: 16px; height: 16px; }
+.w95menu-item .mi-arrow { position: absolute; right: 6px; font-size: 8px; }
+.w95menu-item.hover { background: var(--w95-hover); color: var(--w95-hover-text); outline: 1px dotted #fff; outline-offset: -1px; }
+.w95menu-sep { margin: 3px 2px; border-top: 1px solid var(--w95-face-dark); border-bottom: 1px solid #fff; }
+.w95menu.disabled .w95menu-item { color: var(--w95-face-dark); }
+.w95menu-item.disabled { color: var(--w95-face-dark); text-shadow: 1px 1px 0 #fff; }
+.w95menu-item.disabled.hover { background: var(--w95-face); outline: none; }
+
+/* ============================================================
+   CONTROLS
+   ============================================================ */
+.w95btn {
+  font-family: var(--w95-font);
+  font-size: var(--w95-font-size);
+  background: var(--w95-face);
+  box-shadow: inset -1px -1px 0 var(--w95-face-black), inset 1px 1px 0 #fff, inset -2px -2px 0 var(--w95-shadow), inset 2px 2px 0 var(--w95-face-light);
+  border: 0; outline: none;
+  padding: 3px 12px;
+  min-width: 60px;
+  text-align: center;
+}
+.w95btn:active, .w95btn.pressed { box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 var(--w95-face-black); }
+.w95btn:focus { outline: 1px dotted #000; outline-offset: -4px; }
+.w95btn:disabled { color: var(--w95-face-dark); text-shadow: 1px 1px 0 #fff; }
+.w95btn.default { font-weight: bold; }
+
+.w95input {
+  font-family: var(--w95-font);
+  font-size: var(--w95-font-size);
+  background: #fff;
+  border: 1px solid;
+  border-color: var(--w95-face-dark) #fff #fff var(--w95-face-dark);
+  box-shadow: inset 1px 1px 0 var(--w95-face-dark);
+  padding: 2px 3px;
+  outline: none;
+}
+.w95input:focus { outline: none; }
+
+.w95field {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid;
+  border-color: var(--w95-face-dark) #fff #fff var(--w95-face-dark);
+  background: var(--w95-face);
+  box-shadow: inset 1px 1px 0 var(--w95-face-dark);
+  padding: 5px 8px;
+}
+
+.w95group {
+  border: 1px solid;
+  border-color: var(--w95-face-dark) #fff #fff var(--w95-face-dark);
+  padding: 8px 6px 6px 6px;
+  position: relative;
+  margin-top: 8px;
+}
+.w95group > legend {
+  padding: 0 4px;
+  font-size: var(--w95-font-size);
+}
+
+.w95radio, .w95check { display: flex; align-items: flex-start; gap: 7px; margin: 6px 0; }
+.w95radio input, .w95check input { margin: 1px 0 0 0; accent-color: var(--w95-hover); width: 13px; height: 13px; }
+
+.w95label { font-size: var(--w95-font-size); }
+
+.w95tabhost { display: flex; flex-direction: column; }
+.w95tabs { display: flex; padding-left: 4px; }
+.w95tab {
+  font-family: var(--w95-font); font-size: var(--w95-font-size);
+  background: var(--w95-face);
+  padding: 3px 9px;
+  border: 1px solid;
+  border-color: #fff var(--w95-face-black) var(--w95-face-dark) #fff;
+  margin-right: -1px;
+  position: relative;
+  z-index: 1;
+}
+.w95tab.active {
+  font-weight: bold;
+  border-bottom-color: var(--w95-face);
+  z-index: 3;
+  padding-bottom: 4px;
+}
+.w95tabpage {
+  border: 1px solid;
+  border-color: var(--w95-face-dark) #fff #fff var(--w95-face-dark);
+  background: var(--w95-face);
+  padding: 12px;
+  margin-top: -1px;
+  flex: 1 1 auto;
+  overflow: auto;
+}
+.w95tabpage .w95group { border-color: #fff var(--w95-face-dark) var(--w95-face-dark) #fff; }
+
+/* scrollbars */
+::-webkit-scrollbar { width: 16px; height: 16px; }
+::-webkit-scrollbar-track { background: var(--w95-face); }
+::-webkit-scrollbar-thumb {
+  background: var(--w95-face);
+  box-shadow: inset -1px -1px 0 var(--w95-face-black), inset 1px 1px 0 #fff, inset -2px -2px 0 var(--w95-shadow), inset 2px 2px 0 var(--w95-face-light);
+}
+::-webkit-scrollbar-corner { background: var(--w95-face); }
+::-webkit-scrollbar-button {
+  background: var(--w95-face);
+  box-shadow: inset -1px -1px 0 var(--w95-face-black), inset 1px 1px 0 #fff, inset -2px -2px 0 var(--w95-shadow), inset 2px 2px 0 var(--w95-face-light);
+  width: 16px; height: 16px;
+}
+
+/* tooltip */
+.w95tooltip {
+  position: fixed; z-index: 5000;
+  background: #ffffe1;
+  border: 1px solid #000;
+  box-shadow: 2px 2px 0 rgba(0,0,0,.4);
+  padding: 4px 6px;
+  font-size: 11px;
+  max-width: 220px;
+  pointer-events: none;
+}
+
+/* dialog layer */
+#dialog-layer { position: fixed; inset: 0; z-index: 4000; pointer-events: none; }
+#dialog-layer > * { pointer-events: auto; }
+
+/* message box icons */
+.mb-icon { width: 32px; height: 32px; flex: 0 0 auto; }
+
+/* ============================================================
+   MISC
+   ============================================================ */
+.w95muted { color: var(--w95-face-dark); }
+.dotted-focus { outline: 1px dotted #000; outline-offset: -1px; }
